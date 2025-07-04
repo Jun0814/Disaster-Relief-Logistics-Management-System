@@ -362,16 +362,17 @@ void supplyBaseManager() {
         cout << "4. Return to Main Menu\n";
         cout << "Enter your choice: ";
         cin >> choice;
+        cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear buffer after number input
         
         switch (choice) {
             case 1:
                 cout << "Enter supply box ID: ";
-                cin.ignore();
                 getline(cin, id);
                 cout << "Enter supply type: ";
                 getline(cin, type);
                 cout << "Enter quantity: ";
                 cin >> quantity;
+                cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear buffer after number input
                 supplyStack.push(id, type, quantity);
                 break;
                 
@@ -405,11 +406,11 @@ void volunteerOperationsOfficer() {
         cout << "4. Return to Main Menu\n";
         cout << "Enter your choice: ";
         cin >> choice;
+        cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear buffer after number input
         
         switch (choice) {
             case 1:
                 cout << "Enter volunteer name: ";
-                cin.ignore();
                 getline(cin, name);
                 cout << "Enter contact number: ";
                 getline(cin, contact);
@@ -449,22 +450,78 @@ void emergencyRequestCoordinator() {
         cout << "4. Return to Main Menu\n";
         cout << "Enter your choice: ";
         cin >> choice;
+        cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear buffer after number input
         
         switch (choice) {
-            case 1:
-                cout << "Enter location: ";
-                cin.ignore();
-                getline(cin, location);
-                cout << "Enter request type (medical/food/shelter/water): ";
-                getline(cin, type);
-                cout << "Enter urgency level (1=Low, 2=Medium, 3=High, 4=Critical): ";
-                cin >> urgencyLevel;
-                if (urgencyLevel >= 1 && urgencyLevel <= 4) {
-                    emergencyQueue.enqueue(location, type, urgencyLevel);
-                } else {
-                    cout << "Invalid urgency level!\n";
-                }
+            case 1: {
+                do {
+                    cout << "Enter location: ";
+                    getline(cin, location);
+                    
+                    if (location.empty() || location.find_first_not_of(" \t\n\r") == string::npos) {
+                        cout << "Error: Location cannot be empty! Please enter a valid location.\n";
+                        continue;
+                    }
+                    
+                    // Check if location is too long (reasonable limit)
+                    if (location.length() > 100) {
+                        cout << "Error: Location is too long! Please enter a shorter location (max 100 characters).\n";
+                        continue;
+                    }
+                    
+                    break; 
+                } while (true);
+                
+                do {
+                    cout << "Enter request type (medical/food/shelter/water): ";
+                    getline(cin, type);
+                    
+                    if (type.empty() || type.find_first_not_of(" \t\n\r") == string::npos) {
+                        cout << "Error: Request type cannot be empty! Please enter a valid type.\n";
+                        continue;
+                    }
+                    
+                    string typeLower = type;
+                    for (char& c : typeLower) {
+                        c = tolower(c);
+                    }
+                    
+                    if (typeLower != "medical" && typeLower != "food" && typeLower != "shelter" && typeLower != "water") {
+                        cout << "Error: Invalid request type!\n";
+                        cout << "Valid types: Medical, Food, Shelter, Water\n";
+                        continue;
+                    }
+                    
+                    type = typeLower;
+                    type[0] = toupper(type[0]); 
+                    
+                    break; 
+                } while (true);
+                
+                do {
+                    cout << "Enter urgency level (1=Low, 2=Medium, 3=High, 4=Critical): ";
+                    
+                    if (!(cin >> urgencyLevel)) {
+                        cout << "Error: Please enter a valid number!\n";
+                        cin.clear(); 
+                        cin.ignore(numeric_limits<streamsize>::max(), '\n'); 
+                        continue;
+                    }
+                    
+                    if (urgencyLevel < 1 || urgencyLevel > 4) {
+                        cout << "Error: Urgency level must be between 1 and 4!\n";
+                        cout << "1 = Low, 2 = Medium, 3 = High, 4 = Critical\n";
+                        cin.ignore(numeric_limits<streamsize>::max(), '\n'); 
+                        continue;
+                    }
+                    
+                    cin.ignore(numeric_limits<streamsize>::max(), '\n'); 
+                    break; 
+                } while (true);
+                
+                emergencyQueue.enqueue(location, type, urgencyLevel);
                 break;
+            }
                 
             case 2:
                 emergencyQueue.dequeue();
@@ -496,11 +553,11 @@ void transportUnitScheduler() {
         cout << "4. Return to Main Menu\n";
         cout << "Enter your choice: ";
         cin >> choice;
+        cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear buffer after number input
         
         switch (choice) {
             case 1:
                 cout << "Enter vehicle ID: ";
-                cin.ignore();
                 getline(cin, id);
                 cout << "Enter vehicle type: ";
                 getline(cin, type);
@@ -555,6 +612,7 @@ int main() {
         cout << "6. Exit\n";
         cout << "Enter your choice: ";
         cin >> choice;
+        cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear buffer after number input
         
         switch (choice) {
             case 1:
