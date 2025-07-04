@@ -365,16 +365,90 @@ void supplyBaseManager() {
         cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear buffer after number input
         
         switch (choice) {
-            case 1:
-                cout << "Enter supply box ID: ";
-                getline(cin, id);
-                cout << "Enter supply type: ";
-                getline(cin, type);
-                cout << "Enter quantity: ";
-                cin >> quantity;
-                cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear buffer after number input
+            case 1: {
+                do {
+                    cout << "Enter supply box ID: ";
+                    getline(cin, id);
+                    
+                    if (id.empty() || id.find_first_not_of(" \t\n\r") == string::npos) {
+                        cout << "Error: Supply box ID cannot be empty! Please enter a valid ID.\n";
+                        continue;
+                    }
+                    
+                    if (id.length() > 50) {
+                        cout << "Error: Supply box ID is too long! Please enter a shorter ID (max 50 characters).\n";
+                        continue;
+                    }
+                    
+                    break;
+                } while (true);
+                
+                do {
+                    cout << "Select supply type:\n";
+                    cout << "1. Food & Water\n";
+                    cout << "2. Medical Supplies\n";
+                    cout << "3. Shelter & Clothing\n";
+                    cout << "4. Tools & Equipment\n";
+                    cout << "5. Communication Devices\n";
+                    cout << "6. Fuel & Energy\n";
+                    cout << "Enter your choice (1-6): ";
+                    
+                    int typeChoice;
+                    if (!(cin >> typeChoice)) {
+                        cout << "Error: Please enter a valid number!\n";
+                        cin.clear();
+                        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                        continue;
+                    }
+                    
+                    if (typeChoice < 1 || typeChoice > 6) {
+                        cout << "Error: Please select a valid option (1-6)!\n";
+                        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                        continue;
+                    }
+                    
+                    switch (typeChoice) {
+                        case 1: type = "Food & Water"; break;
+                        case 2: type = "Medical Supplies"; break;
+                        case 3: type = "Shelter & Clothing"; break;
+                        case 4: type = "Tools & Equipment"; break;
+                        case 5: type = "Communication Devices"; break;
+                        case 6: type = "Fuel & Energy"; break;
+                    }
+                    
+                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                    break;
+                } while (true);
+                
+                do {
+                    cout << "Enter quantity: ";
+                    
+                    if (!(cin >> quantity)) {
+                        cout << "Error: Please enter a valid number!\n";
+                        cin.clear();
+                        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                        continue;
+                    }
+                    
+                    if (quantity <= 0) {
+                        cout << "Error: Quantity must be greater than 0!\n";
+                        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                        continue;
+                    }
+                    
+                    if (quantity > 10000) {
+                        cout << "Error: Quantity is too large! Please enter a reasonable quantity (max 10000).\n";
+                        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                        continue;
+                    }
+                    
+                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                    break;
+                } while (true);
+                
                 supplyStack.push(id, type, quantity);
                 break;
+            }
                 
             case 2:
                 supplyStack.pop();
@@ -406,18 +480,78 @@ void volunteerOperationsOfficer() {
         cout << "4. Return to Main Menu\n";
         cout << "Enter your choice: ";
         cin >> choice;
-        cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear buffer after number input
+        cin.ignore(numeric_limits<streamsize>::max(), '\n'); 
         
         switch (choice) {
-            case 1:
-                cout << "Enter volunteer name: ";
-                getline(cin, name);
-                cout << "Enter contact number: ";
-                getline(cin, contact);
-                cout << "Enter skill area: ";
-                getline(cin, skillArea);
+            case 1: {
+                do {
+                    cout << "Enter volunteer name: ";
+                    getline(cin, name);
+                    
+                    if (name.empty() || name.find_first_not_of(" \t\n\r") == string::npos) {
+                        cout << "Error: Volunteer name cannot be empty! Please enter a valid name.\n";
+                        continue;
+                    }
+                    
+                    if (name.length() > 100) {
+                        cout << "Error: Volunteer name is too long! Please enter a shorter name (max 100 characters).\n";
+                        continue;
+                    }
+                    
+                    break;
+                } while (true);
+                
+                do {
+                    cout << "Enter contact number: ";
+                    getline(cin, contact);
+                    
+                    if (contact.empty() || contact.find_first_not_of(" \t\n\r") == string::npos) {
+                        cout << "Error: Contact number cannot be empty! Please enter a valid contact number.\n";
+                        continue;
+                    }
+                    
+                    if (contact.length() > 20) {
+                        cout << "Error: Contact number is too long! Please enter a shorter contact number (max 20 characters).\n";
+                        continue;
+                    }
+                    
+                    // Check if contact contains only digits, spaces, dashes, and plus signs
+                    bool validContact = true;
+                    for (char c : contact) {
+                        if (!isdigit(c) && c != ' ' && c != '-' && c != '+' && c != '(' && c != ')') {
+                            validContact = false;
+                            break;
+                        }
+                    }
+                    
+                    if (!validContact) {
+                        cout << "Error: Contact number should contain only numbers, spaces, dashes, and plus signs.\n";
+                        continue;
+                    }
+                    
+                    break;
+                } while (true);
+                
+                do {
+                    cout << "Enter skill area: ";
+                    getline(cin, skillArea);
+                    
+                    if (skillArea.empty() || skillArea.find_first_not_of(" \t\n\r") == string::npos) {
+                        cout << "Error: Skill area cannot be empty! Please enter a valid skill area.\n";
+                        continue;
+                    }
+                    
+                    if (skillArea.length() > 100) {
+                        cout << "Error: Skill area is too long! Please enter a shorter skill area (max 100 characters).\n";
+                        continue;
+                    }
+                    
+                    break;
+                } while (true);
+                
                 volunteerQueue.enqueue(name, contact, skillArea);
                 break;
+            }
                 
             case 2:
                 volunteerQueue.dequeue();
@@ -450,7 +584,7 @@ void emergencyRequestCoordinator() {
         cout << "4. Return to Main Menu\n";
         cout << "Enter your choice: ";
         cin >> choice;
-        cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear buffer after number input
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
         
         switch (choice) {
             case 1: {
@@ -463,7 +597,6 @@ void emergencyRequestCoordinator() {
                         continue;
                     }
                     
-                    // Check if location is too long (reasonable limit)
                     if (location.length() > 100) {
                         cout << "Error: Location is too long! Please enter a shorter location (max 100 characters).\n";
                         continue;
@@ -553,18 +686,64 @@ void transportUnitScheduler() {
         cout << "4. Return to Main Menu\n";
         cout << "Enter your choice: ";
         cin >> choice;
-        cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear buffer after number input
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
         
         switch (choice) {
-            case 1:
-                cout << "Enter vehicle ID: ";
-                getline(cin, id);
-                cout << "Enter vehicle type: ";
-                getline(cin, type);
-                cout << "Enter driver name: ";
-                getline(cin, driver);
+            case 1: {
+                do {
+                    cout << "Enter vehicle ID: ";
+                    getline(cin, id);
+                    
+                    if (id.empty() || id.find_first_not_of(" \t\n\r") == string::npos) {
+                        cout << "Error: Vehicle ID cannot be empty! Please enter a valid ID.\n";
+                        continue;
+                    }
+                    
+                    if (id.length() > 20) {
+                        cout << "Error: Vehicle ID is too long! Please enter a shorter ID (max 20 characters).\n";
+                        continue;
+                    }
+                    
+                    break;
+                } while (true);
+                
+                do {
+                    cout << "Enter vehicle type: ";
+                    getline(cin, type);
+                    
+                    if (type.empty() || type.find_first_not_of(" \t\n\r") == string::npos) {
+                        cout << "Error: Vehicle type cannot be empty! Please enter a valid type.\n";
+                        continue;
+                    }
+                    
+                    if (type.length() > 50) {
+                        cout << "Error: Vehicle type is too long! Please enter a shorter type (max 50 characters).\n";
+                        continue;
+                    }
+                    
+                    break;
+                } while (true);
+                
+                do {
+                    cout << "Enter driver name: ";
+                    getline(cin, driver);
+                    
+                    if (driver.empty() || driver.find_first_not_of(" \t\n\r") == string::npos) {
+                        cout << "Error: Driver name cannot be empty! Please enter a valid name.\n";
+                        continue;
+                    }
+                    
+                    if (driver.length() > 100) {
+                        cout << "Error: Driver name is too long! Please enter a shorter name (max 100 characters).\n";
+                        continue;
+                    }
+                    
+                    break;
+                } while (true);
+                
                 transportQueue.enqueue(id, type, driver);
                 break;
+            }
                 
             case 2:
                 transportQueue.rotate();
