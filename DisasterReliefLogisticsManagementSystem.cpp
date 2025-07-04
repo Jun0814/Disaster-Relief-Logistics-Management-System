@@ -1,0 +1,591 @@
+#include <iostream>
+#include <string>
+#include <limits>
+using namespace std;
+
+// ==================== DATA STRUCTURES ====================
+
+// Stack for Supply Base Manager (LIFO - Last In, First Out)
+struct SupplyBox {
+    string id;
+    string type;
+    int quantity;
+    SupplyBox* next;
+};
+
+class SupplyStack {
+private:
+    SupplyBox* top;
+    int size;
+    
+public:
+    SupplyStack() {
+        top = nullptr;
+        size = 0;
+    }
+    
+    void push(string id, string type, int quantity) {
+        SupplyBox* newBox = new SupplyBox;
+        newBox->id = id;
+        newBox->type = type;
+        newBox->quantity = quantity;
+        newBox->next = top;
+        top = newBox;
+        size++;
+        cout << "Supply box " << id << " packed successfully!\n";
+    }
+    
+    bool pop() {
+        if (isEmpty()) {
+            cout << "No supply boxes available for dispatch!\n";
+            return false;
+        }
+        
+        SupplyBox* temp = top;
+        cout << "Dispatching supply box: " << temp->id << " (" << temp->type << ", Qty: " << temp->quantity << ")\n";
+        top = top->next;
+        delete temp;
+        size--;
+        return true;
+    }
+    
+    void display() {
+        if (isEmpty()) {
+            cout << "No supply boxes packed.\n";
+            return;
+        }
+        
+        cout << "\n=== PACKED SUPPLY BOXES ===\n";
+        SupplyBox* current = top;
+        int count = 1;
+        while (current != nullptr) {
+            cout << count << ". ID: " << current->id << " | Type: " << current->type << " | Quantity: " << current->quantity << "\n";
+            current = current->next;
+            count++;
+        }
+        cout << "Total boxes: " << size << "\n";
+    }
+    
+    bool isEmpty() {
+        return top == nullptr;
+    }
+    
+    int getSize() {
+        return size;
+    }
+};
+
+// Queue for Volunteer Operations Officer (FIFO - First In, First Out)
+struct Volunteer {
+    string name;
+    string contact;
+    string skillArea;
+    Volunteer* next;
+};
+
+class VolunteerQueue {
+private:
+    Volunteer* front;
+    Volunteer* rear;
+    int size;
+    
+public:
+    VolunteerQueue() {
+        front = nullptr;
+        rear = nullptr;
+        size = 0;
+    }
+    
+    void enqueue(string name, string contact, string skillArea) {
+        Volunteer* newVolunteer = new Volunteer;
+        newVolunteer->name = name;
+        newVolunteer->contact = contact;
+        newVolunteer->skillArea = skillArea;
+        newVolunteer->next = nullptr;
+        
+        if (isEmpty()) {
+            front = rear = newVolunteer;
+        } else {
+            rear->next = newVolunteer;
+            rear = newVolunteer;
+        }
+        size++;
+        cout << "Volunteer " << name << " registered successfully!\n";
+    }
+    
+    bool dequeue() {
+        if (isEmpty()) {
+            cout << "No volunteers available for deployment!\n";
+            return false;
+        }
+        
+        Volunteer* temp = front;
+        cout << "Deploying volunteer: " << temp->name << " (Contact: " << temp->contact << ", Skills: " << temp->skillArea << ")\n";
+        front = front->next;
+        
+        if (front == nullptr) {
+            rear = nullptr;
+        }
+        
+        delete temp;
+        size--;
+        return true;
+    }
+    
+    void display() {
+        if (isEmpty()) {
+            cout << "No volunteers registered.\n";
+            return;
+        }
+        
+        cout << "\n=== REGISTERED VOLUNTEERS ===\n";
+        Volunteer* current = front;
+        int count = 1;
+        while (current != nullptr) {
+            cout << count << ". Name: " << current->name << " | Contact: " << current->contact << " | Skills: " << current->skillArea << "\n";
+            current = current->next;
+            count++;
+        }
+        cout << "Total volunteers: " << size << "\n";
+    }
+    
+    bool isEmpty() {
+        return front == nullptr;
+    }
+    
+    int getSize() {
+        return size;
+    }
+};
+
+// Priority Queue for Emergency Request Coordinator
+struct EmergencyRequest {
+    string location;
+    string type;
+    int urgencyLevel; // 1 = Low, 2 = Medium, 3 = High, 4 = Critical
+    EmergencyRequest* next;
+};
+
+class PriorityQueue {
+private:
+    EmergencyRequest* front;
+    int size;
+    
+public:
+    PriorityQueue() {
+        front = nullptr;
+        size = 0;
+    }
+    
+    void enqueue(string location, string type, int urgencyLevel) {
+        EmergencyRequest* newRequest = new EmergencyRequest;
+        newRequest->location = location;
+        newRequest->type = type;
+        newRequest->urgencyLevel = urgencyLevel;
+        newRequest->next = nullptr;
+        
+        // Insert based on priority (highest urgency first)
+        if (isEmpty() || urgencyLevel > front->urgencyLevel) {
+            newRequest->next = front;
+            front = newRequest;
+        } else {
+            EmergencyRequest* current = front;
+            while (current->next != nullptr && current->next->urgencyLevel >= urgencyLevel) {
+                current = current->next;
+            }
+            newRequest->next = current->next;
+            current->next = newRequest;
+        }
+        size++;
+        cout << "Emergency request logged successfully!\n";
+    }
+    
+    bool dequeue() {
+        if (isEmpty()) {
+            cout << "No emergency requests pending!\n";
+            return false;
+        }
+        
+        EmergencyRequest* temp = front;
+        string urgencyText;
+        switch (temp->urgencyLevel) {
+            case 1: urgencyText = "Low"; break;
+            case 2: urgencyText = "Medium"; break;
+            case 3: urgencyText = "High"; break;
+            case 4: urgencyText = "Critical"; break;
+        }
+        
+        cout << "Processing critical request: " << temp->location << " (" << temp->type << ", Urgency: " << urgencyText << ")\n";
+        front = front->next;
+        delete temp;
+        size--;
+        return true;
+    }
+    
+    void display() {
+        if (isEmpty()) {
+            cout << "No emergency requests pending.\n";
+            return;
+        }
+        
+        cout << "\n=== PENDING EMERGENCY REQUESTS ===\n";
+        EmergencyRequest* current = front;
+        int count = 1;
+        while (current != nullptr) {
+            string urgencyText;
+            switch (current->urgencyLevel) {
+                case 1: urgencyText = "Low"; break;
+                case 2: urgencyText = "Medium"; break;
+                case 3: urgencyText = "High"; break;
+                case 4: urgencyText = "Critical"; break;
+            }
+            cout << count << ". Location: " << current->location << " | Type: " << current->type << " | Urgency: " << urgencyText << "\n";
+            current = current->next;
+            count++;
+        }
+        cout << "Total requests: " << size << "\n";
+    }
+    
+    bool isEmpty() {
+        return front == nullptr;
+    }
+    
+    int getSize() {
+        return size;
+    }
+};
+
+// Circular Queue for Transport Unit Scheduler
+struct Vehicle {
+    string id;
+    string type;
+    string driver;
+    Vehicle* next;
+};
+
+class CircularQueue {
+private:
+    Vehicle* front;
+    Vehicle* rear;
+    int size;
+    int capacity;
+    
+public:
+    CircularQueue(int maxCapacity = 10) {
+        front = nullptr;
+        rear = nullptr;
+        size = 0;
+        capacity = maxCapacity;
+    }
+    
+    void enqueue(string id, string type, string driver) {
+        if (size >= capacity) {
+            cout << "Vehicle schedule is full!\n";
+            return;
+        }
+        
+        Vehicle* newVehicle = new Vehicle;
+        newVehicle->id = id;
+        newVehicle->type = type;
+        newVehicle->driver = driver;
+        newVehicle->next = nullptr;
+        
+        if (isEmpty()) {
+            front = rear = newVehicle;
+            rear->next = front; // Circular link
+        } else {
+            rear->next = newVehicle;
+            rear = newVehicle;
+            rear->next = front; // Circular link
+        }
+        size++;
+        cout << "Vehicle " << id << " added to schedule successfully!\n";
+    }
+    
+    void rotate() {
+        if (isEmpty() || size == 1) {
+            cout << "No vehicles to rotate or only one vehicle in schedule.\n";
+            return;
+        }
+        
+        front = front->next;
+        rear = rear->next;
+        cout << "Vehicle schedule rotated. " << front->id << " is now on duty.\n";
+    }
+    
+    void display() {
+        if (isEmpty()) {
+            cout << "No vehicles in schedule.\n";
+            return;
+        }
+        
+        cout << "\n=== VEHICLE SCHEDULE ===\n";
+        Vehicle* current = front;
+        int count = 1;
+        do {
+            cout << count << ". ID: " << current->id << " | Type: " << current->type << " | Driver: " << current->driver;
+            if (count == 1) cout << " [ON DUTY]";
+            cout << "\n";
+            current = current->next;
+            count++;
+        } while (current != front);
+        cout << "Total vehicles: " << size << " | Capacity: " << capacity << "\n";
+    }
+    
+    bool isEmpty() {
+        return front == nullptr;
+    }
+    
+    int getSize() {
+        return size;
+    }
+};
+
+// ==================== GLOBAL OBJECTS ====================
+SupplyStack supplyStack;
+VolunteerQueue volunteerQueue;
+PriorityQueue emergencyQueue;
+CircularQueue transportQueue(5);
+
+// ==================== ROLE FUNCTIONS ====================
+
+void supplyBaseManager() {
+    int choice;
+    string id, type;
+    int quantity;
+    
+    do {
+        cout << "\n=== SUPPLY BASE MANAGER ===\n";
+        cout << "1. Pack Supply Box\n";
+        cout << "2. Send Supply Package\n";
+        cout << "3. View Packed Supplies\n";
+        cout << "4. Return to Main Menu\n";
+        cout << "Enter your choice: ";
+        cin >> choice;
+        
+        switch (choice) {
+            case 1:
+                cout << "Enter supply box ID: ";
+                cin.ignore();
+                getline(cin, id);
+                cout << "Enter supply type: ";
+                getline(cin, type);
+                cout << "Enter quantity: ";
+                cin >> quantity;
+                supplyStack.push(id, type, quantity);
+                break;
+                
+            case 2:
+                supplyStack.pop();
+                break;
+                
+            case 3:
+                supplyStack.display();
+                break;
+                
+            case 4:
+                cout << "Returning to main menu...\n";
+                break;
+                
+            default:
+                cout << "Invalid choice! Please try again.\n";
+        }
+    } while (choice != 4);
+}
+
+void volunteerOperationsOfficer() {
+    int choice;
+    string name, contact, skillArea;
+    
+    do {
+        cout << "\n=== VOLUNTEER OPERATIONS OFFICER ===\n";
+        cout << "1. Register Volunteer\n";
+        cout << "2. Deploy Volunteer to Field\n";
+        cout << "3. View Registered Volunteers\n";
+        cout << "4. Return to Main Menu\n";
+        cout << "Enter your choice: ";
+        cin >> choice;
+        
+        switch (choice) {
+            case 1:
+                cout << "Enter volunteer name: ";
+                cin.ignore();
+                getline(cin, name);
+                cout << "Enter contact number: ";
+                getline(cin, contact);
+                cout << "Enter skill area: ";
+                getline(cin, skillArea);
+                volunteerQueue.enqueue(name, contact, skillArea);
+                break;
+                
+            case 2:
+                volunteerQueue.dequeue();
+                break;
+                
+            case 3:
+                volunteerQueue.display();
+                break;
+                
+            case 4:
+                cout << "Returning to main menu...\n";
+                break;
+                
+            default:
+                cout << "Invalid choice! Please try again.\n";
+        }
+    } while (choice != 4);
+}
+
+void emergencyRequestCoordinator() {
+    int choice;
+    string location, type;
+    int urgencyLevel;
+    
+    do {
+        cout << "\n=== EMERGENCY REQUEST COORDINATOR ===\n";
+        cout << "1. Log Emergency Request\n";
+        cout << "2. Process Most Critical Request\n";
+        cout << "3. View Pending Requests\n";
+        cout << "4. Return to Main Menu\n";
+        cout << "Enter your choice: ";
+        cin >> choice;
+        
+        switch (choice) {
+            case 1:
+                cout << "Enter location: ";
+                cin.ignore();
+                getline(cin, location);
+                cout << "Enter request type (medical/food/shelter/water): ";
+                getline(cin, type);
+                cout << "Enter urgency level (1=Low, 2=Medium, 3=High, 4=Critical): ";
+                cin >> urgencyLevel;
+                if (urgencyLevel >= 1 && urgencyLevel <= 4) {
+                    emergencyQueue.enqueue(location, type, urgencyLevel);
+                } else {
+                    cout << "Invalid urgency level!\n";
+                }
+                break;
+                
+            case 2:
+                emergencyQueue.dequeue();
+                break;
+                
+            case 3:
+                emergencyQueue.display();
+                break;
+                
+            case 4:
+                cout << "Returning to main menu...\n";
+                break;
+                
+            default:
+                cout << "Invalid choice! Please try again.\n";
+        }
+    } while (choice != 4);
+}
+
+void transportUnitScheduler() {
+    int choice;
+    string id, type, driver;
+    
+    do {
+        cout << "\n=== TRANSPORT UNIT SCHEDULER ===\n";
+        cout << "1. Add Vehicle to Schedule\n";
+        cout << "2. Rotate Vehicle Shift\n";
+        cout << "3. Display Vehicle Schedule\n";
+        cout << "4. Return to Main Menu\n";
+        cout << "Enter your choice: ";
+        cin >> choice;
+        
+        switch (choice) {
+            case 1:
+                cout << "Enter vehicle ID: ";
+                cin.ignore();
+                getline(cin, id);
+                cout << "Enter vehicle type: ";
+                getline(cin, type);
+                cout << "Enter driver name: ";
+                getline(cin, driver);
+                transportQueue.enqueue(id, type, driver);
+                break;
+                
+            case 2:
+                transportQueue.rotate();
+                break;
+                
+            case 3:
+                transportQueue.display();
+                break;
+                
+            case 4:
+                cout << "Returning to main menu...\n";
+                break;
+                
+            default:
+                cout << "Invalid choice! Please try again.\n";
+        }
+    } while (choice != 4);
+}
+
+void displaySystemStatus() {
+    cout << "\n=== SYSTEM STATUS ===\n";
+    cout << "Supply Base: " << supplyStack.getSize() << " boxes packed\n";
+    cout << "Volunteers: " << volunteerQueue.getSize() << " registered\n";
+    cout << "Emergency Requests: " << emergencyQueue.getSize() << " pending\n";
+    cout << "Transport Units: " << transportQueue.getSize() << " scheduled\n";
+}
+
+// ==================== MAIN FUNCTION ====================
+
+int main() {
+    int choice;
+    
+    cout << "==========================================\n";
+    cout << "  DISASTER RELIEF LOGISTICS MANAGEMENT\n";
+    cout << "              SYSTEM\n";
+    cout << "==========================================\n";
+    
+    do {
+        cout << "\n=== MAIN MENU ===\n";
+        cout << "1. Supply Base Manager\n";
+        cout << "2. Volunteer Operations Officer\n";
+        cout << "3. Emergency Request Coordinator\n";
+        cout << "4. Transport Unit Scheduler\n";
+        cout << "5. System Status\n";
+        cout << "6. Exit\n";
+        cout << "Enter your choice: ";
+        cin >> choice;
+        
+        switch (choice) {
+            case 1:
+                supplyBaseManager();
+                break;
+                
+            case 2:
+                volunteerOperationsOfficer();
+                break;
+                
+            case 3:
+                emergencyRequestCoordinator();
+                break;
+                
+            case 4:
+                transportUnitScheduler();
+                break;
+                
+            case 5:
+                displaySystemStatus();
+                break;
+                
+            case 6:
+                cout << "Thank you for using Disaster Relief Logistics Management System!\n";
+                cout << "Exiting...\n";
+                break;
+                
+            default:
+                cout << "Invalid choice! Please try again.\n";
+        }
+    } while (choice != 6);
+    
+    return 0;
+}
