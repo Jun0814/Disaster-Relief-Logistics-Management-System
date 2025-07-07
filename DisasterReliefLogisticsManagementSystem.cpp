@@ -362,10 +362,17 @@ void supplyBaseManager() {
         cout << "4. Return to Main Menu\n";
         cout << "Enter your choice: ";
         cin >> choice;
-        cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear buffer after number input
+        if (cin.fail()) {
+            cin.clear(); // clear error state
+            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // discard invalid input
+            cout << "Invalid choice! Please try again.\n";
+            continue; // go back to the start of the loop
+        }
+        cin.ignore(numeric_limits<streamsize>::max(), '\n'); // clear buffer after number input
         
         switch (choice) {
             case 1: {
+                // Input validation for supply box ID
                 do {
                     cout << "Enter supply box ID: ";
                     getline(cin, id);
@@ -383,6 +390,7 @@ void supplyBaseManager() {
                     break;
                 } while (true);
                 
+                // Input validation for supply type
                 do {
                     cout << "Select supply type:\n";
                     cout << "1. Food & Water\n";
@@ -407,6 +415,7 @@ void supplyBaseManager() {
                         continue;
                     }
                     
+                    // Assign the selected type
                     switch (typeChoice) {
                         case 1: type = "Food & Water"; break;
                         case 2: type = "Medical Supplies"; break;
@@ -420,6 +429,7 @@ void supplyBaseManager() {
                     break;
                 } while (true);
                 
+                // Input validation for quantity
                 do {
                     cout << "Enter quantity: ";
                     
@@ -480,10 +490,17 @@ void volunteerOperationsOfficer() {
         cout << "4. Return to Main Menu\n";
         cout << "Enter your choice: ";
         cin >> choice;
-        cin.ignore(numeric_limits<streamsize>::max(), '\n'); 
+        if (cin.fail()) {
+            cin.clear(); // clear error state
+            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // discard invalid input
+            cout << "Invalid choice! Please try again.\n";
+            continue; // go back to the start of the loop
+        }
+        cin.ignore(numeric_limits<streamsize>::max(), '\n'); // clear buffer after number input
         
         switch (choice) {
             case 1: {
+                // Input validation for volunteer name
                 do {
                     cout << "Enter volunteer name: ";
                     getline(cin, name);
@@ -501,6 +518,7 @@ void volunteerOperationsOfficer() {
                     break;
                 } while (true);
                 
+                // Input validation for contact number
                 do {
                     cout << "Enter contact number: ";
                     getline(cin, contact);
@@ -532,6 +550,7 @@ void volunteerOperationsOfficer() {
                     break;
                 } while (true);
                 
+                // Input validation for skill area
                 do {
                     cout << "Enter skill area: ";
                     getline(cin, skillArea);
@@ -584,7 +603,13 @@ void emergencyRequestCoordinator() {
         cout << "4. Return to Main Menu\n";
         cout << "Enter your choice: ";
         cin >> choice;
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        if (cin.fail()) {
+            cin.clear(); // clear error state
+            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // discard invalid input
+            cout << "Invalid choice! Please try again.\n";
+            continue; // go back to the start of the loop
+        }
+        cin.ignore(numeric_limits<streamsize>::max(), '\n'); // clear buffer after number input
         
         switch (choice) {
             case 1: {
@@ -597,6 +622,7 @@ void emergencyRequestCoordinator() {
                         continue;
                     }
                     
+                    // Check if location is too long (reasonable limit)
                     if (location.length() > 100) {
                         cout << "Error: Location is too long! Please enter a shorter location (max 100 characters).\n";
                         continue;
@@ -686,10 +712,17 @@ void transportUnitScheduler() {
         cout << "4. Return to Main Menu\n";
         cout << "Enter your choice: ";
         cin >> choice;
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        if (cin.fail()) {
+            cin.clear(); // clear error state
+            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // discard invalid input
+            cout << "Invalid choice! Please try again.\n";
+            continue; // go back to the start of the loop
+        }
+        cin.ignore(numeric_limits<streamsize>::max(), '\n'); // clear buffer after number input
         
         switch (choice) {
             case 1: {
+                // Input validation for vehicle ID
                 do {
                     cout << "Enter vehicle ID: ";
                     getline(cin, id);
@@ -707,6 +740,7 @@ void transportUnitScheduler() {
                     break;
                 } while (true);
                 
+                // Input validation for vehicle type
                 do {
                     cout << "Enter vehicle type: ";
                     getline(cin, type);
@@ -724,6 +758,7 @@ void transportUnitScheduler() {
                     break;
                 } while (true);
                 
+                // Input validation for driver name
                 do {
                     cout << "Enter driver name: ";
                     getline(cin, driver);
@@ -791,7 +826,13 @@ int main() {
         cout << "6. Exit\n";
         cout << "Enter your choice: ";
         cin >> choice;
-        cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear buffer after number input
+        if (cin.fail()) {
+            cin.clear(); // clear error state
+            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // discard invalid input
+            cout << "Invalid choice! Please try again.\n";
+            continue; // go back to the start of the loop
+        }
+        cin.ignore(numeric_limits<streamsize>::max(), '\n'); // clear buffer after number input
         
         switch (choice) {
             case 1:
