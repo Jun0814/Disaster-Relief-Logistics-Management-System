@@ -34,23 +34,56 @@ struct Volunteer
     string skill;
 };
 
-struct EmergencyRequest
-{
+// struct EmergencyRequest
+// {
+//     int requestID;
+//     string location;
+//     string type;
+//     int urgency;
+//     string status;
+// };
+
+// struct SupplyRequest
+// {
+//     int supplyRequestID;
+//     int supplyID;
+//     int requestID;
+//     string date;
+//     string status;
+// };
+
+struct SupplyNode {
+    int supplyID;
+    int quantity;
+    SupplyNode* next;
+};
+
+struct EmergencyRequest {
     int requestID;
     string location;
     string type;
     int urgency;
     string status;
+    string date;
+    SupplyNode* supplies;
+    EmergencyRequest* next;
 };
 
-struct SupplyRequest
-{
-    int supplyRequestID;
-    int supplyID;
-    int requestID;
-    string date;
-    string status;
-};
+
+// struct SupplyItem {
+//     int supplyID;
+//     int quantity;
+// };
+
+// struct EmergencySupplyRequest {
+//     int requestID;                // Unique ID for the emergency request
+//     std::string location;        // Location of the emergency
+//     std::string type;            // Type of emergency (e.g., fire, medical)
+//     int urgency;                 // Urgency level (1-10)
+//     std::string status;          // Status of the request (e.g., pending, approved)
+//     std::string date;            // Date of the request
+//     std::map<std::string, SupplyItem> supplies; // Map of supply type to supply details
+// };
 
 struct VolunteerAssignment
 {
