@@ -1,7 +1,15 @@
 #include <iostream>
+#include <limits>
 #include "emergency.hpp"
+#include "volunteer.hpp"
 
 using namespace std;
+
+// Helper function to clear cin buffer
+void clearCinBuffer() {
+    cin.clear();
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+}
 
 int main()
 {
@@ -18,64 +26,133 @@ int main()
         cout << "4. Transport Unit Scheduler" << endl;
         cout << "0. Exit" << endl;
         cout << "Select Role: ";
-        cin >> choice;
+        
+        if (!(cin >> choice)) {
+            cout << "Invalid input! Please enter a number.\n";
+            clearCinBuffer();
+            continue;
+        }
 
         switch (choice)
         {
-        case 3:
-            PriorityQueue pq;
-            int emergencyChoice;
-            do
+        case 2:
             {
-                cout << "\n-- Emergency Request Coordinator Menu --" << endl;
-                cout << "1. Log Emergency Request" << endl;
-                cout << "2. Assign Emergency Request" << endl;
-                cout << "3. Process Most Critical Request" << endl;
-                cout << "4. View Pending Requests" << endl;
-                cout << "5. View All Emergency Requests" << endl;
-                cout << "0. Back to Main Menu" << endl;
-                cout << "Enter choice: ";
-                cin >> emergencyChoice;
-
-                switch (emergencyChoice)
+                VolunteerManager vm;
+                int volunteerChoice;
+                do
                 {
-                case 1: {
-                    string loc, typ, dt;
-                    int urg;
-                    cout << "Enter Location: ";
-                    cin.ignore();
-                    getline(cin, loc);
-                    cout << "Enter Type (Medical, Staff, Food): ";
-                    getline(cin, typ);
-                    cout << "Enter Urgency (1-10): ";
-                    cin >> urg;
-                    cout << "Enter Date (Logged Date): ";
-                    cin.ignore();
-                    getline(cin, dt);
-                    pq.insert(loc, typ, urg, dt);
-                    break;
-                }
-                case 2:
-                    pq.assignSupplies();
-                    break;
-                case 3:
-                    pq.processMostCritical();
-                    break;
-                case 4:
-                    pq.viewPending();
-                    break;
-                case 5:
-                    pq.viewAll();
-                    break;
-                case 0:
-                    cout << "Returning to Main Menu...\n";
-                    break;
-                default:
-                    cout << "Invalid emergency menu choice.\n";
-                    break;
-                }
+                    cout << "\n-- Volunteer Operations Officer Menu --" << endl;
+                    cout << "1. Register Volunteer" << endl;
+                    cout << "2. Deploy Volunteer to Field" << endl;
+                    cout << "3. View Registered Volunteers" << endl;
+                    cout << "0. Back to Main Menu" << endl;
+                    cout << "Enter choice: ";
+                    
+                    if (!(cin >> volunteerChoice)) {
+                        cout << "Invalid input! Please enter a number.\n";
+                        clearCinBuffer();
+                        continue;
+                    }
 
-            } while (emergencyChoice != 0);
+                    switch (volunteerChoice)
+                    {
+                    case 1: {
+                        string name, contact, skill;
+                        cout << "Enter Volunteer Name: ";
+                        cin.ignore();
+                        getline(cin, name);
+                        cout << "Enter Contact Number: ";
+                        getline(cin, contact);
+                        cout << "Enter Skill Area (Medical, Logistics, Communication, etc.): ";
+                        getline(cin, skill);
+                        vm.registerVolunteer(name, contact, skill);
+                        break;
+                    }
+                    case 2:
+                        vm.deployVolunteer();
+                        break;
+                    case 3:
+                        vm.viewVolunteers();
+                        break;
+                    case 0:
+                        cout << "Returning to Main Menu...\n";
+                        break;
+                    default:
+                        cout << "Invalid volunteer menu choice.\n";
+                        break;
+                    }
+
+                } while (volunteerChoice != 0);
+                break;
+            }
+        case 3:
+            {
+                PriorityQueue pq;
+                int emergencyChoice;
+                do
+                {
+                    cout << "\n-- Emergency Request Coordinator Menu --" << endl;
+                    cout << "1. Log Emergency Request" << endl;
+                    cout << "2. Assign Emergency Request" << endl;
+                    cout << "3. Process Most Critical Request" << endl;
+                    cout << "4. View Pending Requests" << endl;
+                    cout << "5. View All Emergency Requests" << endl;
+                    cout << "0. Back to Main Menu" << endl;
+                    cout << "Enter choice: ";
+                    
+                    if (!(cin >> emergencyChoice)) {
+                        cout << "Invalid input! Please enter a number.\n";
+                        clearCinBuffer();
+                        continue;
+                    }
+
+                    switch (emergencyChoice)
+                    {
+                    case 1: {
+                        string loc, typ, dt;
+                        int urg;
+                        cout << "Enter Location: ";
+                        cin.ignore();
+                        getline(cin, loc);
+                        cout << "Enter Type (Medical, Staff, Food): ";
+                        getline(cin, typ);
+                        cout << "Enter Urgency (1-10): ";
+                        cin >> urg;
+                        cout << "Enter Date (Logged Date): ";
+                        cin.ignore();
+                        getline(cin, dt);
+                        pq.insert(loc, typ, urg, dt);
+                        break;
+                    }
+                    case 2:
+                        pq.assignSupplies();
+                        break;
+                    case 3:
+                        pq.processMostCritical();
+                        break;
+                    case 4:
+                        pq.viewPending();
+                        break;
+                    case 5:
+                        pq.viewAll();
+                        break;
+                    case 0:
+                        cout << "Returning to Main Menu...\n";
+                        break;
+                    default:
+                        cout << "Invalid emergency menu choice.\n";
+                        break;
+                    }
+
+                } while (emergencyChoice != 0);
+                break;
+            }
+        case 0:
+            cout << "Exiting Disaster Relief Logistics Management System...\n";
+            return 0;
+        default:
+            cout << "Invalid choice. Please try again.\n";
+            break;
         }
     }
 }
