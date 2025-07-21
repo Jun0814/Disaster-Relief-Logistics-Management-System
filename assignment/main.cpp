@@ -85,47 +85,44 @@ int main()
                 } while (volunteerChoice != 0);
                 break;
             }
-        case 3:
-            {
-                PriorityQueue pq;
-                int emergencyChoice;
-                do
-                {
-                    cout << "\n-- Emergency Request Coordinator Menu --" << endl;
-                    cout << "1. Log Emergency Request" << endl;
-                    cout << "2. Assign Emergency Request" << endl;
-                    cout << "3. Process Most Critical Request" << endl;
-                    cout << "4. View Pending Requests" << endl;
-                    cout << "5. View All Emergency Requests" << endl;
-                    cout << "0. Back to Main Menu" << endl;
-                    cout << "Enter choice: ";
-                    
-                    if (!(cin >> emergencyChoice)) {
-                        cout << "Invalid input! Please enter a number.\n";
-                        clearCinBuffer();
-                        continue;
-                    }
+        case 3: {
+            PriorityQueue pq;
+            int emergencyChoice;
+            do {
+                cout << "\n-- Emergency Request Coordinator Menu --\n";
+                cout << "1. Log Emergency Request\n";
+                cout << "2. Request Emergency Items\n";
+                cout << "3. Process Most Critical Request\n";
+                cout << "4. View Pending Requests\n";
+                cout << "5. View All Emergency Requests\n";
+                cout << "0. Back to Main Menu\n";
+                cout << "Enter choice: ";
 
-                    switch (emergencyChoice)
-                    {
+                if (!(cin >> emergencyChoice)) {
+                    cout << "Invalid input! Please enter a number.\n";
+                    clearCinBuffer();
+                    continue;
+                }
+
+                switch (emergencyChoice) {
                     case 1: {
                         string loc, typ, dt;
                         int urg;
                         cout << "Enter Location: ";
                         cin.ignore();
                         getline(cin, loc);
-                        cout << "Enter Type (Medical, Staff, Food): ";
+                        cout << "Enter Type (Volunteer, Supply): ";
                         getline(cin, typ);
                         cout << "Enter Urgency (1-10): ";
                         cin >> urg;
-                        cout << "Enter Date (Logged Date): ";
+                        cout << "Enter Date (DD-MM-YYYY): ";
                         cin.ignore();
                         getline(cin, dt);
                         pq.insert(loc, typ, urg, dt);
                         break;
                     }
                     case 2:
-                        pq.assignSupplies();
+                        pq.requestEmergencyItems();
                         break;
                     case 3:
                         pq.processMostCritical();
@@ -142,11 +139,10 @@ int main()
                     default:
                         cout << "Invalid emergency menu choice.\n";
                         break;
-                    }
-
-                } while (emergencyChoice != 0);
-                break;
-            }
+                }
+            } while (emergencyChoice != 0);
+            break;
+        }
         case 0:
             cout << "Exiting Disaster Relief Logistics Management System...\n";
             return 0;
