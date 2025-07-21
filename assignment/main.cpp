@@ -2,6 +2,7 @@
 #include <limits>
 #include "emergency.hpp"
 #include "volunteer.hpp"
+#include "supply.hpp"
 
 using namespace std;
 
@@ -26,7 +27,7 @@ int main()
         cout << "4. Transport Unit Scheduler" << endl;
         cout << "0. Exit" << endl;
         cout << "Select Role: ";
-        
+
         if (!(cin >> choice)) {
             cout << "Invalid input! Please enter a number.\n";
             clearCinBuffer();
@@ -35,56 +36,112 @@ int main()
 
         switch (choice)
         {
+        case 1: {
+            SupplyManager sm;
+            int supplyChoice;
+            do {
+                cout << "\n-- Supply Base Manager Menu --\n";
+                cout << "1. Add/Update Supply\n";
+                cout << "2. Delete Supply\n";
+                cout << "3. View All Supplies\n";
+                cout << "4. View Pending Supply Requests\n";
+                cout << "5. Assign Supply to Request\n";
+                cout << "0. Back to Main Menu\n";
+                cout << "Enter choice: ";
+                cin >> supplyChoice;
+                switch (supplyChoice) {
+                case 1: {
+                    string type;
+                    int qty;
+                    cout << "Enter Supply Type: ";
+                    cin.ignore();
+                    getline(cin, type);
+                    cout << "Enter Quantity: ";
+                    cin >> qty;
+                    sm.addSupplyByType(type, qty);
+                    break;
+                }
+                case 2: {
+                    string type;
+                    cout << "Enter Supply Type to delete: ";
+                    cin.ignore();
+                    getline(cin, type);
+                    sm.deleteSupplyType(type);
+                    break;
+                }
+                case 3:
+                    sm.viewSupplies();
+                    break;
+                case 4:
+                    sm.viewPendingSupplyRequests();
+                    break;
+                case 5: {
+                    int reqID;
+                    cout << "Enter Supply Request ID to assign: ";
+                    cin >> reqID;
+                    sm.assignSupplyToRequest(reqID);
+                    break;
+                }
+                case 0:
+                    cout << "Returning to Main Menu...\n";
+                    break;
+                default:
+                    cout << "Invalid supply menu choice.\n";
+                    break;
+                }
+            } while (supplyChoice != 0);
+            break;
+        }
         case 2:
+        {
+            VolunteerManager vm;
+            int volunteerChoice;
+            do
             {
-                VolunteerManager vm;
-                int volunteerChoice;
-                do
+                cout << "\n-- Volunteer Operations Officer Menu --" << endl;
+                cout << "1. Register Volunteer" << endl;
+                cout << "2. Deploy Volunteer to Field" << endl;
+                cout << "3. View Registered Volunteers" << endl;
+                cout << "0. Back to Main Menu" << endl;
+                cout << "Enter choice: ";
+
+                if (!(cin >> volunteerChoice)) {
+                    cout << "Invalid input! Please enter a number.\n";
+                    clearCinBuffer();
+                    continue;
+                }
+
+                switch (volunteerChoice)
                 {
-                    cout << "\n-- Volunteer Operations Officer Menu --" << endl;
-                    cout << "1. Register Volunteer" << endl;
-                    cout << "2. Deploy Volunteer to Field" << endl;
-                    cout << "3. View Registered Volunteers" << endl;
-                    cout << "0. Back to Main Menu" << endl;
-                    cout << "Enter choice: ";
-                    
-                    if (!(cin >> volunteerChoice)) {
-                        cout << "Invalid input! Please enter a number.\n";
-                        clearCinBuffer();
-                        continue;
-                    }
+                case 1: {
+                    string name, contact, skill;
+                    cout << "Enter Volunteer Name: ";
+                    cin.ignore();
+                    getline(cin, name);
+                    cout << "Enter Contact Number: ";
+                    getline(cin, contact);
+                    cout << "Enter Skill Area (Medical, Logistics, Communication, etc.): ";
+                    getline(cin, skill);
+                    vm.registerVolunteer(name, contact, skill);
+                    break;
+                }
+                case 2:
+                    vm.deployVolunteer();
+                    break;
+                case 3:
+                    vm.viewVolunteers();
+                    break;
+                case 0:
+                    cout << "Returning to Main Menu...\n";
+                    break;
+                default:
+                    cout << "Invalid volunteer menu choice.\n";
+                    break;
+                }
 
-                    switch (volunteerChoice)
-                    {
-                    case 1: {
-                        string name, contact, skill;
-                        cout << "Enter Volunteer Name: ";
-                        cin.ignore();
-                        getline(cin, name);
-                        cout << "Enter Contact Number: ";
-                        getline(cin, contact);
-                        cout << "Enter Skill Area (Medical, Logistics, Communication, etc.): ";
-                        getline(cin, skill);
-                        vm.registerVolunteer(name, contact, skill);
-                        break;
-                    }
-                    case 2:
-                        vm.deployVolunteer();
-                        break;
-                    case 3:
-                        vm.viewVolunteers();
-                        break;
-                    case 0:
-                        cout << "Returning to Main Menu...\n";
-                        break;
-                    default:
-                        cout << "Invalid volunteer menu choice.\n";
-                        break;
-                    }
-
-                } while (volunteerChoice != 0);
-                break;
-            }
+            } while (volunteerChoice != 0);
+            break;
+        }
         case 3: {
             PriorityQueue pq;
             int emergencyChoice;
@@ -105,40 +162,40 @@ int main()
                 }
 
                 switch (emergencyChoice) {
-                    case 1: {
-                        string loc, typ, dt;
-                        int urg;
-                        cout << "Enter Location: ";
-                        cin.ignore();
-                        getline(cin, loc);
-                        cout << "Enter Type (Volunteer, Supply): ";
-                        getline(cin, typ);
-                        cout << "Enter Urgency (1-10): ";
-                        cin >> urg;
-                        cout << "Enter Date (DD-MM-YYYY): ";
-                        cin.ignore();
-                        getline(cin, dt);
-                        pq.insert(loc, typ, urg, dt);
-                        break;
-                    }
-                    case 2:
-                        pq.requestEmergencyItems();
-                        break;
-                    case 3:
-                        pq.processMostCritical();
-                        break;
-                    case 4:
-                        pq.viewPending();
-                        break;
-                    case 5:
-                        pq.viewAll();
-                        break;
-                    case 0:
-                        cout << "Returning to Main Menu...\n";
-                        break;
-                    default:
-                        cout << "Invalid emergency menu choice.\n";
-                        break;
+                case 1: {
+                    string loc, typ, dt;
+                    int urg;
+                    cout << "Enter Location: ";
+                    cin.ignore();
+                    getline(cin, loc);
+                    cout << "Enter Type (Volunteer, Supply): ";
+                    getline(cin, typ);
+                    cout << "Enter Urgency (1-10): ";
+                    cin >> urg;
+                    cout << "Enter Date (DD-MM-YYYY): ";
+                    cin.ignore();
+                    getline(cin, dt);
+                    pq.insert(loc, typ, urg, dt);
+                    break;
+                }
+                case 2:
+                    pq.requestEmergencyItems();
+                    break;
+                case 3:
+                    pq.processMostCritical();
+                    break;
+                case 4:
+                    pq.viewPending();
+                    break;
+                case 5:
+                    pq.viewAll();
+                    break;
+                case 0:
+                    cout << "Returning to Main Menu...\n";
+                    break;
+                default:
+                    cout << "Invalid emergency menu choice.\n";
+                    break;
                 }
             } while (emergencyChoice != 0);
             break;
