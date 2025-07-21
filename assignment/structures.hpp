@@ -73,8 +73,7 @@ struct VolunteerAssignment
 
 struct SupplyNode
 {
-    int supplyID;
-    int quantity;
+    Supply supply;
     SupplyNode *next;
 };
 
