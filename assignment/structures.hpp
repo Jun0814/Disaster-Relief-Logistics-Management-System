@@ -8,22 +8,21 @@
 using namespace std;
 
 // Global file names
-string fileSupplyBox = "SupplyBox.csv";
-string fileVolunteer = "Volunteer.csv";
-string fileEmergencyRequest = "EmergencyRequest.csv";
-string fileSupplyRequest = "SupplyRequest.csv";
-string fileVolunteerAssignment = "VolunteerAssignment.csv";
-string fileVehicle = "Vehicle.csv";
-string fileTransportOrder = "TransportOrder.csv";
+string fileSupplyBox = "database/SupplyBox.csv";
+string fileVolunteer = "database/Volunteer.csv";
+string fileEmergencyRequest = "database/EmergencyRequest.csv";
+string fileSupplyRequest = "database/SupplyRequest.csv";
+string fileVolunteerAssignment = "database/VolunteerAssignment.csv";
+string fileVehicle = "database/Vehicle.csv";
+string fileTransportOrder = "database/TransportOrder.csv";
+string fileVolunteerRequest = "database/VolunteerRequest.csv";
 
 // Structure definitions
-struct SupplyBox
+struct Supply
 {
     int supplyID;
     string type;
     int quantity;
-    string status;
-    string date;
 };
 
 struct Volunteer
@@ -34,56 +33,34 @@ struct Volunteer
     string skill;
 };
 
-// struct EmergencyRequest
-// {
-//     int requestID;
-//     string location;
-//     string type;
-//     int urgency;
-//     string status;
-// };
-
-// struct SupplyRequest
-// {
-//     int supplyRequestID;
-//     int supplyID;
-//     int requestID;
-//     string date;
-//     string status;
-// };
-
-struct SupplyNode {
-    int supplyID;
-    int quantity;
-    SupplyNode* next;
-};
-
-struct EmergencyRequest {
+struct EmergencyRequest
+{
     int requestID;
     string location;
     string type;
     int urgency;
     string status;
     string date;
-    SupplyNode* supplies;
-    EmergencyRequest* next;
 };
 
+struct SupplyRequest
+{
+    int supplyRequestID;
+    int supplyID;
+    int requestID;
+    int quantity;
+    string date;
+    string status;
+};
 
-// struct SupplyItem {
-//     int supplyID;
-//     int quantity;
-// };
-
-// struct EmergencySupplyRequest {
-//     int requestID;                // Unique ID for the emergency request
-//     std::string location;        // Location of the emergency
-//     std::string type;            // Type of emergency (e.g., fire, medical)
-//     int urgency;                 // Urgency level (1-10)
-//     std::string status;          // Status of the request (e.g., pending, approved)
-//     std::string date;            // Date of the request
-//     std::map<std::string, SupplyItem> supplies; // Map of supply type to supply details
-// };
+struct VolunteerRequest
+{
+    int volunteerRequestID;
+    int requestID;
+    int quantity;
+    string date;
+    string status;
+};
 
 struct VolunteerAssignment
 {
@@ -92,6 +69,13 @@ struct VolunteerAssignment
     int requestID;
     string date;
     string status;
+};
+
+struct SupplyNode
+{
+    int supplyID;
+    int quantity;
+    SupplyNode *next;
 };
 
 struct Vehicle
@@ -109,6 +93,48 @@ struct TransportOrder
     string type;
     string date;
     string status;
+};
+
+struct VehicleNode
+{
+    Vehicle vehicle;
+    VehicleNode *next;
+};
+
+struct VolunteerNode
+{
+    Volunteer volunteer;
+    VolunteerNode *next;
+};
+
+struct VolunteerRequestNode
+{
+    VolunteerRequest request;
+    VolunteerRequestNode *next;
+};
+
+struct VolunteerAssignmentNode
+{
+    VolunteerAssignment assignment;
+    VolunteerAssignmentNode *next;
+};
+
+struct SupplyRequestNode
+{
+    SupplyRequest request;
+    SupplyRequestNode *next;
+};
+
+struct TransportOrderNode
+{
+    TransportOrder order;
+    TransportOrderNode *next;
+};
+
+struct EmergencyRequestNode
+{
+    EmergencyRequest request;
+    EmergencyRequestNode *next;
 };
 
 string getCurrentDateTime()
