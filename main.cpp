@@ -63,7 +63,7 @@ int main()
                     getline(cin, type);
                     cout << "Enter Quantity: ";
                     cin >> qty;
-                    sm.addSupplyByType(type, qty);
+                    sm.addSupply(type, qty);
                     break;
                 }
                 case 2:
