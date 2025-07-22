@@ -182,7 +182,7 @@ int main()
                     cout << "Enter Location: ";
                     cin.ignore();
                     getline(cin, loc);
-                    cout << "Enter Type (Volunteer, Supply): ";
+                    cout << "Enter Emergency Type (Flood, Food, etc.): ";
                     getline(cin, typ);
                     cout << "Enter Urgency (1-10): ";
                     cin >> urg;

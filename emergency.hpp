@@ -3,44 +3,38 @@
 #include <fstream>
 #include <sstream>
 #include <direct.h> // For _mkdir
-#include <sstream>
-#include <direct.h> // For _mkdir
 #include "structures.hpp"
+#include "supply.hpp"
 
 using namespace std;
+SupplyManager sm;
 
-class PriorityQueue
-{
+class PriorityQueue {
 private:
-    EmergencyRequestNode *head;
+    EmergencyRequestNode* head;
     int nextID;
     int nextSupplyRequestID;
     int nextVolunteerRequestID;
 
-    void ensureDirectoryExists(const string &path)
-    {
+    void ensureDirectoryExists(const string& path) {
         size_t pos = path.find_last_of("/\\");
-        if (pos != string::npos)
-        {
+        if (pos != string::npos) {
             string dir = path.substr(0, pos);
             _mkdir(dir.c_str());
         }
     }
 
-    void saveToFile()
-    {
+    void saveToFile() {
         ensureDirectoryExists(fileEmergencyRequest);
         ofstream file(fileEmergencyRequest);
-        if (!file.is_open())
-        {
+        if (!file.is_open()) {
             return;
         }
         // Write header
         file << "requestID,location,type,urgency,status,date\n";
-        EmergencyRequestNode *curr = head;
-        while (curr)
-        {
-            EmergencyRequest &req = curr->request;
+        EmergencyRequestNode* curr = head;
+        while (curr) {
+            EmergencyRequest& req = curr->request;
             file << req.requestID << "," << req.location << "," << req.type << ","
                  << req.urgency << "," << req.status << "," << req.date << "\n";
             curr = curr->next;
@@ -48,12 +42,10 @@ private:
         file.close();
     }
 
-    void saveSupplyRequest(int supplyID, int requestID, int quantity)
-    {
+    void saveSupplyRequest(int supplyID, int requestID, int quantity) {
         ensureDirectoryExists(fileSupplyRequest);
         ofstream file(fileSupplyRequest, ios::app);
-        if (!file.is_open())
-        {
+        if (!file.is_open()) {
             return;
         }
         file << nextSupplyRequestID++ << "," << supplyID << "," << requestID << ","
@@ -61,55 +53,50 @@ private:
         file.close();
     }
 
-    void saveVolunteerRequest(int requestID, int quantity)
-    {
+    void saveVolunteerRequest(int requestID, int quantity, string comment) {
         ensureDirectoryExists(fileVolunteerRequest);
         ofstream file(fileVolunteerRequest, ios::app);
-        if (!file.is_open())
-        {
+        if (!file.is_open()) {
             return;
         }
+        // Escape commas in comment to prevent CSV parsing issues
+        string escapedComment = comment;
+        size_t pos = 0;
+        while ((pos = escapedComment.find(',', pos)) != string::npos) {
+            escapedComment.replace(pos, 1, ";");
+            pos += 1;
+        }
         file << nextVolunteerRequestID++ << "," << requestID << "," << quantity << ","
-             << getCurrentDateTime() << ",Pending\n";
+             << escapedComment << "," << getCurrentDateTime() << ",Pending\n";
         file.close();
     }
 
 public:
-    PriorityQueue() : head(nullptr), nextID(1), nextSupplyRequestID(1), nextVolunteerRequestID(1)
-    {
+    PriorityQueue() : head(nullptr), nextID(1), nextSupplyRequestID(1), nextVolunteerRequestID(1) {
         loadFromFile();
     }
 
-    ~PriorityQueue()
-    {
-        while (head)
-        {
-            EmergencyRequestNode *temp = head;
+    ~PriorityQueue() {
+        while (head) {
+            EmergencyRequestNode* temp = head;
             head = head->next;
             delete temp;
         }
     }
 
-    void insert(string location, string type, int urgency, string date)
-    {
-        EmergencyRequestNode *newNode = new EmergencyRequestNode;
+void insert(string location, string type, int urgency, string date) {
+        EmergencyRequestNode* newNode = new EmergencyRequestNode;
         newNode->request = EmergencyRequest{nextID++, location, type, urgency, "Pending", date};
         newNode->next = nullptr;
 
-        if (!head || urgency > head->request.urgency)
-        {
+        if (!head || urgency > head->request.urgency) {
             newNode->next = head;
             head = newNode;
-        }
-        else
-        {
-            EmergencyRequestNode *curr = head;
-            while (curr->next && curr->next->request.urgency >= urgency)
-            {
+        } else {
+            EmergencyRequestNode* curr = head;
+            while (curr->next && curr->next->request.urgency >= urgency) {
                 curr = curr->next;
             }
-            newNode->next = curr->next;
-            curr->next = newNode;
             newNode->next = curr->next;
             curr->next = newNode;
         }
@@ -120,163 +107,161 @@ public:
         char more = 'y';
         cout << "Request supplies for this emergency? (y/n): ";
         cin >> more;
-        while (more == 'y' || more == 'Y')
-        {
+        cin.ignore(); // Clear newline
+        while (more == 'y' || more == 'Y') {
             int supplyID, quantity;
-            cout << "Enter Supply ID: ";
-            cin >> supplyID;
+            bool validSupply = false;
+            do {
+                sm.viewSupplies();
+                cout << "Enter Supply ID: ";
+                cin >> supplyID;
+                if (sm.findSupplyByID(supplyID)) {
+                    validSupply = true;
+                } else {
+                    cout << "Error: Supply ID " << supplyID << " does not exist. Please enter a valid Supply ID.\n";
+                }
+            } while (!validSupply);
             cout << "Enter Quantity: ";
             cin >> quantity;
             saveSupplyRequest(supplyID, newNode->request.requestID, quantity);
             cout << "Add more supplies? (y/n): ";
             cin >> more;
+            cin.ignore();
         }
 
         // Request volunteers
         cout << "Request volunteers for this emergency? (y/n): ";
         cin >> more;
-        if (more == 'y' || more == 'Y')
-        {
+        cin.ignore();
+        if (more == 'y' || more == 'Y') {
             int quantity;
+            string comment;
             cout << "Enter Number of Volunteers Needed: ";
             cin >> quantity;
-            saveVolunteerRequest(newNode->request.requestID, quantity);
+            cin.ignore();
+            cout << "Enter Comment for Volunteer Request: ";
+            getline(cin, comment);
+            saveVolunteerRequest(newNode->request.requestID, quantity, comment);
         }
 
         saveToFile();
         viewAll();
     }
 
-    void requestEmergencyItems()
-    {
-        if (!head)
-        {
+    void requestEmergencyItems() {
+        if (!head) {
             cout << "No requests available.\n";
             return;
         }
 
-        // Show pending requests
         // Show pending requests
         cout << "\n-- Pending Emergency Requests --\n";
         cout << "------------------------------------------------------------\n";
         cout << "| ID | Location     | Type         | Urgency | Status  |\n";
         cout << "------------------------------------------------------------\n";
 
-        EmergencyRequestNode *curr = head;
+        EmergencyRequestNode* curr = head;
         bool found = false;
-        while (curr)
-        {
-            if (curr->request.status == "Pending")
-            {
+        while (curr) {
+            if (curr->request.status == "Pending") {
                 printf("| %-2d | %-12s | %-12s | %-7d | %-7s |\n",
-                       curr->request.requestID, curr->request.location.c_str(),
-                       curr->request.type.c_str(), curr->request.urgency, curr->request.status.c_str());
+                    curr->request.requestID, curr->request.location.c_str(),
+                    curr->request.type.c_str(), curr->request.urgency, curr->request.status.c_str());
                 found = true;
             }
             curr = curr->next;
         }
         cout << "------------------------------------------------------------\n";
 
-        if (!found)
-        {
+        if (!found) {
             cout << "No Pending requests found.\n";
             return;
         }
 
         // Get request ID
-        // Get request ID
         int selectID;
         cout << "Enter the Request ID to request items for: ";
-        cout << "Enter the Request ID to request items for: ";
         cin >> selectID;
+        cin.ignore();
 
         // Find the request
         curr = head;
-        while (curr && (curr->request.requestID != selectID || curr->request.status != "Pending"))
-        {
+        while (curr && (curr->request.requestID != selectID || curr->request.status != "Pending")) {
             curr = curr->next;
         }
-        if (!curr)
-        {
+        if (!curr) {
             cout << "No matching Pending request found with ID " << selectID << ".\n";
             return;
         }
 
         cout << "Requesting items for Request ID: " << curr->request.requestID
              << " | Location: " << curr->request.location << endl;
-        cout << "Requesting items for Request ID: " << curr->request.requestID
-             << " | Location: " << curr->request.location << endl;
 
-        // Request supplies
         // Request supplies
         char more = 'y';
         cout << "Request supplies? (y/n): ";
         cin >> more;
-        while (more == 'y' || more == 'Y')
-        {
+        cin.ignore();
+        while (more == 'y' || more == 'Y') {
             int supplyID, quantity;
+            sm.viewSupplies();
             cout << "Enter Supply ID: ";
-            cin >> supplyID;
             cin >> supplyID;
             cout << "Enter Quantity: ";
             cin >> quantity;
             saveSupplyRequest(supplyID, curr->request.requestID, quantity);
-            cin >> quantity;
-            saveSupplyRequest(supplyID, curr->request.requestID, quantity);
             cout << "Add more supplies? (y/n): ";
             cin >> more;
+            cin.ignore();
         }
 
         // Request volunteers
         cout << "Request volunteers? (y/n): ";
         cin >> more;
-        if (more == 'y' || more == 'Y')
-        {
+        cin.ignore();
+        if (more == 'y' || more == 'Y') {
             int quantity;
+            string comment;
             cout << "Enter Number of Volunteers Needed: ";
             cin >> quantity;
-            saveVolunteerRequest(curr->request.requestID, quantity);
+            cin.ignore();
+            cout << "Enter Comment for Volunteer Request: ";
+            getline(cin, comment);
+            saveVolunteerRequest(curr->request.requestID, quantity, comment);
         }
 
-        curr->request.status = "Pending";
+        curr->request.status = "Assigned";
         cout << "Items requested.\n";
         saveToFile();
     }
 
-    void processMostCritical()
-    {
-        if (!head)
-        {
+    void processMostCritical() {
+        if (!head) {
             cout << "No requests in the queue.\n";
             return;
         }
 
-        EmergencyRequestNode *curr = head;
-        while (curr && curr->request.status != "Pending")
-        {
+        EmergencyRequestNode* curr = head;
+        while (curr && curr->request.status != "Pending") {
             curr = curr->next;
         }
-        if (!curr)
-        {
+        if (!curr) {
             cout << "No pending requests to process.\n";
             return;
         }
-        cout << "\n-- Most Critical Request --\n";
         cout << "\n-- Most Critical Request --\n";
         cout << "----------------------------------------------------------------------------\n";
         cout << "| ID | Location     | Type         | Urgency | Status    | Date       |\n";
         cout << "----------------------------------------------------------------------------\n";
         printf("| %-2d | %-12s | %-12s | %-7d | %-9s | %-10s |\n",
-               curr->request.requestID, curr->request.location.c_str(),
-               curr->request.type.c_str(), curr->request.urgency,
-               curr->request.status.c_str(), curr->request.date.c_str());
+            curr->request.requestID, curr->request.location.c_str(),
+            curr->request.type.c_str(), curr->request.urgency,
+            curr->request.status.c_str(), curr->request.date.c_str());
         cout << "----------------------------------------------------------------------------\n";
     }
 
-    void viewPending()
-    {
-        if (!head)
-        {
+    void viewPending() {
+        if (!head) {
             cout << "No requests in the system.\n";
             return;
         }
@@ -286,16 +271,15 @@ public:
         cout << "| ID | Location     | Type         | Urgency | Status    | Date       |\n";
         cout << "--------------------------------------------------------------------------------\n";
 
-        EmergencyRequestNode *curr = head;
+        EmergencyRequestNode* curr = head;
         bool found = false;
-        while (curr)
-        {
-            if (curr->request.status == "Pending")
-            {
+        while (curr) {
+            if (curr->request.status == "Pending") {
                 printf("| %-2d | %-12s | %-12s | %-7d | %-9s | %-10s |\n",
-                       curr->request.requestID, curr->request.location.c_str(),
-                       curr->request.type.c_str(), curr->request.urgency,
-                       curr->request.status.c_str(), curr->request.date.c_str());
+                    curr->request.requestID, curr->request.location.c_str(),
+                    curr->request.type.c_str(), curr->request.urgency,
+                    curr->request.status.c_str(), curr->request.date.c_str());
+                cout << "--------------------------------------------------------------------------------\n";
 
                 // Show supplies
                 ifstream supplyFile(fileSupplyRequest);
@@ -303,10 +287,8 @@ public:
                 bool hasSupplies = false;
                 bool firstLine = true;
                 cout << "   Supplies Requested:\n";
-                while (getline(supplyFile, line))
-                {
-                    if (firstLine)
-                    {
+                while (getline(supplyFile, line)) {
+                    if (firstLine) {
                         firstLine = false;
                         continue;
                     }
@@ -314,62 +296,58 @@ public:
                     string token;
                     int supplyRequestID, supplyID, requestID, quantity;
                     string date, status;
-                    getline(ss, token, ',');
-                    supplyRequestID = stoi(token);
-                    getline(ss, token, ',');
-                    supplyID = stoi(token);
-                    getline(ss, token, ',');
-                    requestID = stoi(token);
-                    getline(ss, token, ',');
-                    quantity = stoi(token);
+                    getline(ss, token, ','); supplyRequestID = stoi(token);
+                    getline(ss, token, ','); supplyID = stoi(token);
+                    getline(ss, token, ','); requestID = stoi(token);
+                    getline(ss, token, ','); quantity = stoi(token);
                     getline(ss, date, ',');
                     getline(ss, status, ',');
-                    if (requestID == curr->request.requestID)
-                    {
+                    if (requestID == curr->request.requestID) {
                         cout << "     - Supply Req ID: " << supplyRequestID
-                             << ", Supply ID: " << supplyID << ", Quantity: " << quantity
+                             << ", Supply ID: " << supplyID
+                             << ", Quantity: " << quantity
                              << ", Status: " << status << "\n";
                         hasSupplies = true;
                     }
                 }
                 supplyFile.close();
-                if (!hasSupplies)
+                if (!hasSupplies) {
                     cout << "     (No supplies requested)\n";
+                }
 
                 // Show volunteers
                 ifstream volunteerFile(fileVolunteerRequest);
                 bool hasVolunteers = false;
                 firstLine = true;
                 cout << "   Volunteers Requested:\n";
-                while (getline(volunteerFile, line))
-                {
-                    if (firstLine)
-                    {
+                while (getline(volunteerFile, line)) {
+                    if (firstLine) {
                         firstLine = false;
                         continue;
                     }
                     stringstream ss(line);
                     string token;
                     int volunteerRequestID, requestID, quantity;
-                    string date, status;
-                    getline(ss, token, ',');
-                    volunteerRequestID = stoi(token);
-                    getline(ss, token, ',');
-                    requestID = stoi(token);
-                    getline(ss, token, ',');
-                    quantity = stoi(token);
+                    string comment, date, status;
+                    getline(ss, token, ','); volunteerRequestID = stoi(token);
+                    getline(ss, token, ','); requestID = stoi(token);
+                    getline(ss, token, ','); quantity = stoi(token);
+                    getline(ss, comment, ',');
                     getline(ss, date, ',');
                     getline(ss, status, ',');
-                    if (requestID == curr->request.requestID)
-                    {
-                        cout << "     - Volunteer Req ID: " << volunteerRequestID
-                             << ", Quantity: " << quantity << ", Status: " << status << "\n";
+                    if (requestID == curr->request.requestID) {
+                        cout << "     - Vol Req ID: " << volunteerRequestID
+                             << ", Quantity: " << quantity
+                             << ", Status: " << status
+                             << ", Comment: " << comment
+                             << ", Date: " << date << "\n";
                         hasVolunteers = true;
                     }
                 }
                 volunteerFile.close();
-                if (!hasVolunteers)
+                if (!hasVolunteers) {
                     cout << "     (No volunteers requested)\n";
+                }
 
                 found = true;
             }
@@ -377,16 +355,13 @@ public:
         }
         cout << "--------------------------------------------------------------------------------\n";
 
-        if (!found)
-        {
+        if (!found) {
             cout << "No Pending requests found.\n";
         }
     }
 
-    void viewAll()
-    {
-        if (!head)
-        {
+    void viewAll() {
+        if (!head) {
             cout << "No requests in the system.\n";
             return;
         }
@@ -396,17 +371,14 @@ public:
         cout << "| ID | Location     | Type         | Urgency | Status     | Date       | Supply Req ID | Supply ID | Quantity |\n";
         cout << "----------------------------------------------------------------------------------------------------------------\n";
 
-        EmergencyRequestNode *curr = head;
-        while (curr)
-        {
+        EmergencyRequestNode* curr = head;
+        while (curr) {
             bool hasSupplies = false;
             ifstream supplyFile(fileSupplyRequest);
             string line;
             bool firstLine = true;
-            while (getline(supplyFile, line))
-            {
-                if (firstLine)
-                {
+            while (getline(supplyFile, line)) {
+                if (firstLine) {
                     firstLine = false;
                     continue;
                 }
@@ -414,35 +386,29 @@ public:
                 string token;
                 int supplyRequestID, supplyID, requestID, quantity;
                 string date, status;
-                getline(ss, token, ',');
-                supplyRequestID = stoi(token);
-                getline(ss, token, ',');
-                supplyID = stoi(token);
-                getline(ss, token, ',');
-                requestID = stoi(token);
-                getline(ss, token, ',');
-                quantity = stoi(token);
+                getline(ss, token, ','); supplyRequestID = stoi(token);
+                getline(ss, token, ','); supplyID = stoi(token);
+                getline(ss, token, ','); requestID = stoi(token);
+                getline(ss, token, ','); quantity = stoi(token);
                 getline(ss, date, ',');
                 getline(ss, status, ',');
-                if (requestID == curr->request.requestID)
-                {
+                if (requestID == curr->request.requestID) {
                     printf("| %-2d | %-12s | %-12s | %-7d | %-10s | %-10s | %-13d | %-9d | %-8d |\n",
-                           curr->request.requestID, curr->request.location.c_str(),
-                           curr->request.type.c_str(), curr->request.urgency,
-                           curr->request.status.c_str(), curr->request.date.c_str(),
-                           supplyRequestID, supplyID, quantity);
+                        curr->request.requestID, curr->request.location.c_str(),
+                        curr->request.type.c_str(), curr->request.urgency,
+                        curr->request.status.c_str(), curr->request.date.c_str(),
+                        supplyRequestID, supplyID, quantity);
                     hasSupplies = true;
                 }
             }
             supplyFile.close();
 
-            if (!hasSupplies)
-            {
+            if (!hasSupplies) {
                 printf("| %-2d | %-12s | %-12s | %-7d | %-10s | %-10s | %-13s | %-9s | %-8s |\n",
-                       curr->request.requestID, curr->request.location.c_str(),
-                       curr->request.type.c_str(), curr->request.urgency,
-                       curr->request.status.c_str(), curr->request.date.c_str(),
-                       "-", "-", "-");
+                    curr->request.requestID, curr->request.location.c_str(),
+                    curr->request.type.c_str(), curr->request.urgency,
+                    curr->request.status.c_str(), curr->request.date.c_str(),
+                    "-", "-", "-");
             }
 
             // Show volunteers
@@ -450,96 +416,80 @@ public:
             bool hasVolunteers = false;
             firstLine = true;
             cout << "   Volunteers Requested:\n";
-            while (getline(volunteerFile, line))
-            {
-                if (firstLine)
-                {
+            while (getline(volunteerFile, line)) {
+                if (firstLine) {
                     firstLine = false;
                     continue;
                 }
                 stringstream ss(line);
                 string token;
                 int volunteerRequestID, requestID, quantity;
-                string date, status;
-                getline(ss, token, ',');
-                volunteerRequestID = stoi(token);
-                getline(ss, token, ',');
-                requestID = stoi(token);
-                getline(ss, token, ',');
-                quantity = stoi(token);
+                string comment, date, status;
+                getline(ss, token, ','); volunteerRequestID = stoi(token);
+                getline(ss, token, ','); requestID = stoi(token);
+                getline(ss, token, ','); quantity = stoi(token);
+                getline(ss, comment, ',');
                 getline(ss, date, ',');
                 getline(ss, status, ',');
-                if (requestID == curr->request.requestID)
-                {
-                    cout << "     - Volunteer Req ID: " << volunteerRequestID
-                         << ", Quantity: " << quantity << ", Status: " << status << "\n";
+                if (requestID == curr->request.requestID) {
+                    cout << "     - Vol Req ID: " << volunteerRequestID
+                         << ", Quantity: " << quantity
+                         << ", Status: " << status
+                         << ", Comment: " << comment
+                         << ", Date: " << date << "\n";
                     hasVolunteers = true;
                 }
             }
             volunteerFile.close();
-            if (!hasVolunteers)
+            if (!hasVolunteers) {
                 cout << "     (No volunteers requested)\n";
+            }
 
             curr = curr->next;
         }
         cout << "----------------------------------------------------------------------------------------------------------------\n";
-        cout << "----------------------------------------------------------------------------------------------------------------\n";
     }
 
-    void loadFromFile()
-    {
+    void loadFromFile() {
         ensureDirectoryExists(fileEmergencyRequest);
         ifstream file(fileEmergencyRequest);
-        if (!file.is_open())
-        {
+        if (!file.is_open()) {
             return;
         }
         string line;
         bool firstLine = true;
-        while (getline(file, line))
-        {
-            if (firstLine)
-            {
+        while (getline(file, line)) {
+            if (firstLine) {
                 firstLine = false;
                 continue;
             }
-            if (line.empty())
-                continue;
+            if (line.empty()) continue;
 
-            EmergencyRequestNode *node = new EmergencyRequestNode;
+            EmergencyRequestNode* node = new EmergencyRequestNode;
             node->request = EmergencyRequest();
             node->next = nullptr;
 
             stringstream ss(line);
             string token;
-            getline(ss, token, ',');
-            node->request.requestID = stoi(token);
+            getline(ss, token, ','); node->request.requestID = stoi(token);
             getline(ss, node->request.location, ',');
             getline(ss, node->request.type, ',');
-            getline(ss, token, ',');
-            node->request.urgency = stoi(token);
+            getline(ss, token, ','); node->request.urgency = stoi(token);
             getline(ss, node->request.status, ',');
             getline(ss, node->request.date, ',');
 
-            if (!head || node->request.urgency > head->request.urgency)
-            {
+            if (!head || node->request.urgency > head->request.urgency) {
                 node->next = head;
                 head = node;
-            }
-            else
-            {
-                EmergencyRequestNode *curr = head;
-                while (curr->next && curr->next->request.urgency >= node->request.urgency)
-                {
+            } else {
+                EmergencyRequestNode* curr = head;
+                while (curr->next && curr->next->request.urgency >= node->request.urgency) {
                     curr = curr->next;
                 }
                 node->next = curr->next;
                 curr->next = node;
-                node->next = curr->next;
-                curr->next = node;
             }
-            if (node->request.requestID >= nextID)
-                nextID = node->request.requestID + 1;
+            if (node->request.requestID >= nextID) nextID = node->request.requestID + 1;
         }
         file.close();
 
@@ -547,20 +497,16 @@ public:
         ensureDirectoryExists(fileSupplyRequest);
         ifstream supplyFile(fileSupplyRequest);
         firstLine = true;
-        while (getline(supplyFile, line))
-        {
-            if (firstLine)
-            {
+        while (getline(supplyFile, line)) {
+            if (firstLine) {
                 firstLine = false;
                 continue;
             }
             stringstream ss(line);
             string token;
             int supplyRequestID;
-            getline(ss, token, ',');
-            supplyRequestID = stoi(token);
-            if (supplyRequestID >= nextSupplyRequestID)
-                nextSupplyRequestID = supplyRequestID + 1;
+            getline(ss, token, ','); supplyRequestID = stoi(token);
+            if (supplyRequestID >= nextSupplyRequestID) nextSupplyRequestID = supplyRequestID + 1;
         }
         supplyFile.close();
 
@@ -568,20 +514,16 @@ public:
         ensureDirectoryExists(fileVolunteerRequest);
         ifstream volunteerFile(fileVolunteerRequest);
         firstLine = true;
-        while (getline(volunteerFile, line))
-        {
-            if (firstLine)
-            {
+        while (getline(volunteerFile, line)) {
+            if (firstLine) {
                 firstLine = false;
                 continue;
             }
             stringstream ss(line);
             string token;
             int volunteerRequestID;
-            getline(ss, token, ',');
-            volunteerRequestID = stoi(token);
-            if (volunteerRequestID >= nextVolunteerRequestID)
-                nextVolunteerRequestID = volunteerRequestID + 1;
+            getline(ss, token, ','); volunteerRequestID = stoi(token);
+            if (volunteerRequestID >= nextVolunteerRequestID) nextVolunteerRequestID = volunteerRequestID + 1;
         }
         volunteerFile.close();
     }
