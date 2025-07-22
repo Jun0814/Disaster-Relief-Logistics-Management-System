@@ -10,9 +10,9 @@ using namespace std;
 // Global file names
 string fileSupplyBox = "database/SupplyBox.csv";
 string fileVolunteer = "database/Volunteer.csv";
-string fileEmergencyRequest = "database/EmergencyRequest.csv";
-string fileSupplyRequest = "database/SupplyRequest.csv";
-string fileVolunteerRequest = "database/VolunteerRequest.csv";
+string fileEmergencyRequest = "./database/EmergencyRequest.csv";
+string fileSupplyRequest = "./database/SupplyRequest.csv";
+string fileVolunteerRequest = "./database/VolunteerRequest.csv";
 string fileVolunteerAssignment = "database/VolunteerAssignment.csv";
 string fileVehicle = "database/Vehicle.csv";
 string fileTransportOrder = "database/TransportOrder.csv";
@@ -58,6 +58,7 @@ struct VolunteerRequest
     int volunteerRequestID;
     int requestID;
     int quantity;
+    string comment;
     string date;
     string status;
 };

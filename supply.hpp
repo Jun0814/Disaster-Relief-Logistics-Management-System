@@ -73,15 +73,15 @@ private:
         return nullptr;
     }
 
-    SupplyNode* findSupplyByID(int supplyID) {
-        SupplyNode* curr = front;
-        while (curr) {
-            if (curr->supply.supplyID == supplyID) return curr;
-            curr = curr->next;
-        }
-        return nullptr;
-    }
-
+//     SupplyNode* findSupplyByID(int supplyID) {
+//         SupplyNode* curr = front;
+//         while (curr) {
+//             if (curr->supply.supplyID == supplyID) return curr;
+//             curr = curr->next;
+//         }
+//         return nullptr;
+//     }
+  
 public:
     SupplyManager() : front(nullptr), rear(nullptr), nextID(1) { loadFromCSV(); }
     ~SupplyManager() {
@@ -259,5 +259,17 @@ public:
         }
         rfile.close();
         delete[] lines;
+    }
+    
+    SupplyNode *findSupplyByID(int supplyID)
+    {
+        SupplyNode *curr = front;
+        while (curr)
+        {
+            if (curr->supply.supplyID == supplyID)
+                return curr;
+            curr = curr->next;
+        }
+        return nullptr;
     }
 };
