@@ -1,2 +1,12 @@
-VolunteerID,Name,Contact,Skill
-2,xuanhan,010-3891107,medical
+VolunteerID,Name,Contact,Skill,Status
+1,Chin Xuan Han,019-8342485,Medical,Available
+2,Tan Po Yeh,017-3452463,Bomba,Available
+3,Liew Hao Shean,014-2535345,Logistics,Available
+4,Charles,019-4236543,Medical,Available
+5,Chin Wen Qi,016-2318463,Medical,Available
+6,Yung Sze Xun,012-7239432,Medical,Available
+7,Ali,012-3456789,General,Available
+8,Tan Jin Le,013-4567891,Medical,Available
+9,Haze Lim,019-3214523,General,Available
+10,Evangeline,018-2348716,General,Available
+11,Brandon,019-3753646,General,Available

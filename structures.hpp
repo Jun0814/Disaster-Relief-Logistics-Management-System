@@ -30,6 +30,7 @@ struct Volunteer
     string name;
     string contact;
     string skill;
+    string status;
 };
 
 struct EmergencyRequest

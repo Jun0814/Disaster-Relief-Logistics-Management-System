@@ -8,18 +8,18 @@ using namespace std;
 struct VNode
 {
     Volunteer data;
-    VNode *next;
+    VNode* next;
 };
 
 class VolunteerManager
 {
 private:
-    VNode *front;
-    VNode *rear;
+    VNode* front;
+    VNode* rear;
     int volunteerIDCounter;
 
 public:
-    VolunteerManager() : front(nullptr), rear(nullptr), volunteerIDCounter(1) 
+    VolunteerManager() : front(nullptr), rear(nullptr), volunteerIDCounter(1)
     {
         loadVolunteersFromCSV();
     }
@@ -29,7 +29,7 @@ public:
         saveVolunteersToCSV();
         while (front != nullptr)
         {
-            VNode *temp = front;
+            VNode* temp = front;
             front = front->next;
             delete temp;
         }
@@ -45,35 +45,34 @@ public:
         }
 
         string line;
-        // Skip header line
         getline(file, line);
-        
+
         while (getline(file, line))
         {
             stringstream ss(line);
-            string id, name, contact, skill;
-            
+            string id, name, contact, skill, status;
             getline(ss, id, ',');
             getline(ss, name, ',');
             getline(ss, contact, ',');
             getline(ss, skill, ',');
-            
-            // Remove quotes if present
+            getline(ss, status, ',');
+
             if (name.front() == '"' && name.back() == '"')
                 name = name.substr(1, name.length() - 2);
             if (contact.front() == '"' && contact.back() == '"')
                 contact = contact.substr(1, contact.length() - 2);
             if (skill.front() == '"' && skill.back() == '"')
                 skill = skill.substr(1, skill.length() - 2);
-            
+
             Volunteer newVolunteer;
             newVolunteer.volunteerID = stoi(id);
             newVolunteer.name = name;
             newVolunteer.contact = contact;
             newVolunteer.skill = skill;
-            
+            newVolunteer.status = status;
+
             // Add to queue
-            VNode *newNode = new VNode{newVolunteer, nullptr};
+            VNode* newNode = new VNode{ newVolunteer, nullptr };
             if (rear == nullptr)
             {
                 front = rear = newNode;
@@ -83,8 +82,7 @@ public:
                 rear->next = newNode;
                 rear = newNode;
             }
-            
-            // Update counter
+
             if (newVolunteer.volunteerID >= volunteerIDCounter)
                 volunteerIDCounter = newVolunteer.volunteerID + 1;
         }
@@ -100,17 +98,17 @@ public:
             return;
         }
 
-        file << "VolunteerID,Name,Contact,Skill\n";
-        
+        file << "VolunteerID,Name,Contact,Skill,Status\n";
+
         // Write all volunteers in queue
-        VNode *current = front;
+        VNode* current = front;
         while (current != nullptr)
         {
             Volunteer v = current->data;
-            file << v.volunteerID << ",\"" << v.name << "\",\"" << v.contact << "\",\"" << v.skill << "\"\n";
+            file << v.volunteerID << "," << v.name << "," << v.contact << "," << v.skill << "," << v.status << "\n";
             current = current->next;
         }
-        
+
         file.close();
     }
 
@@ -122,9 +120,9 @@ public:
         newVolunteer.name = name;
         newVolunteer.contact = contact;
         newVolunteer.skill = skill;
+        newVolunteer.status = "Available";
+        VNode* newNode = new VNode{ newVolunteer, nullptr };
 
-        VNode *newNode = new VNode{newVolunteer, nullptr};
-        
         if (rear == nullptr)
         {
             front = rear = newNode;
@@ -134,14 +132,51 @@ public:
             rear->next = newNode;
             rear = newNode;
         }
-        
+
         cout << "Volunteer registered successfully!\n";
         cout << "Volunteer ID: " << newVolunteer.volunteerID << endl;
         cout << "Name: " << newVolunteer.name << endl;
         cout << "Contact: " << newVolunteer.contact << endl;
         cout << "Skill: " << newVolunteer.skill << endl;
-        
+
         saveVolunteersToCSV();
+    }
+
+    void viewPendingVolunteerRequests() {
+        ifstream file(fileVolunteerRequest);
+        string line;
+        getline(file, line);
+        bool found = false;
+        cout << "\n----------------------------------- Pending Volunteer Requests -----------------------------------\n";
+        cout << left
+            << setw(18) << "VolunteerReqID"
+            << setw(12) << "Quantity"
+            << setw(25) << "Comment"
+            << setw(25) << "Date"
+            << setw(12) << "Status" << endl;
+        cout << "--------------------------------------------------------------------------------------------------\n";
+        while (getline(file, line)) {
+            stringstream ss(line);
+            string volunteerReqID, reqID, quantity, comment, date, status;
+            getline(ss, volunteerReqID, ',');
+            getline(ss, reqID, ',');
+            getline(ss, quantity, ',');
+            getline(ss, comment, ',');
+            getline(ss, date, ',');
+            getline(ss, status, ',');
+            if (status == "Pending") {
+                cout << left
+                    << setw(18) << volunteerReqID
+                    << setw(12) << quantity
+                    << setw(25) << comment
+                    << setw(25) << date
+                    << setw(10) << status << endl;
+                found = true;
+            }
+        }
+        if (!found) cout << "No pending volunteer requests.\n";
+        cout << "--------------------------------------------------------------------------------------------------\n";
+        file.close();
     }
 
     // Deploy Volunteer to Field
@@ -152,16 +187,16 @@ public:
             cout << "No volunteers available for deployment.\n";
             return;
         }
-        
+
         Volunteer v = front->data;
-        VNode *temp = front;
+        VNode* temp = front;
         front = front->next;
-        
+
         if (front == nullptr)
             rear = nullptr;
-            
+
         delete temp;
-        
+
         cout << "Volunteer deployed successfully!\n";
         cout << "Deployed Volunteer Details:\n";
         cout << "ID: " << v.volunteerID << endl;
@@ -169,7 +204,7 @@ public:
         cout << "Contact: " << v.contact << endl;
         cout << "Skill: " << v.skill << endl;
         cout << "Deployment Time: " << getCurrentDateTime() << endl;
-        
+
         saveVolunteersToCSV();
     }
 
@@ -181,24 +216,64 @@ public:
             cout << "No volunteers registered.\n";
             return;
         }
-        
-        cout << "\n=== Registered Volunteers (Available for Deployment) ===" << endl;
-        cout << "ID\tName\t\t\tContact\t\t\tSkill" << endl;
-        cout << "----------------------------------------------------------------------" << endl;
-        
-        VNode *current = front;
+
+        cout << "\n----------------------------------- Available Volunteers -----------------------------------\n";
+        cout << left
+            << setw(12) << "ID"
+            << setw(18) << "Name"
+            << setw(15) << "Contact"
+            << setw(20) << "Skill"
+            << setw(12) << "Status" << endl;
+        cout << "---------------------------------------------------------------------------------------------\n";
+
+        VNode* current = front;
         int count = 0;
-        
+
         while (current != nullptr)
         {
             Volunteer v = current->data;
-            cout << v.volunteerID << "\t" << v.name << "\t\t" << v.contact << "\t\t" << v.skill << endl;
+            if (v.status == "Available") {
+                cout << left
+                    << setw(12) << v.volunteerID
+                    << setw(18) << v.name
+                    << setw(15) << v.contact
+                    << setw(20) << v.skill
+                    << setw(12) << v.status << endl;
+                count++;
+            }
             current = current->next;
-            count++;
         }
-        
-        cout << "----------------------------------------------------------------------" << endl;
+
+        cout << "---------------------------------------------------------------------------------------------\n";
         cout << "Total volunteers available: " << count << endl;
+    }
+
+    void viewAllVolunteers() {
+        if (front == nullptr) {
+            cout << "No volunteers registered.\n";
+            return;
+        }
+        cout << "\n----------------------------------- All Volunteers -----------------------------------\n";
+        cout << left
+            << setw(12) << "ID"
+            << setw(18) << "Name"
+            << setw(15) << "Contact"
+            << setw(20) << "Skill"
+            << setw(12) << "Status" << endl;
+        cout << "--------------------------------------------------------------------------------------\n";
+        VNode* current = front;
+        while (current != nullptr) {
+            Volunteer v = current->data;
+            cout << left
+                << setw(12) << v.volunteerID
+                << setw(18) << v.name
+                << setw(15) << v.contact
+                << setw(20) << v.skill
+                << setw(12) << v.status << endl;
+            current = current->next;
+        }
+        cout << "--------------------------------------------------------------------------------------\n";
+        cout << "Total volunteers: " << getSize() << endl;
     }
 
     bool isEmpty()
@@ -209,12 +284,106 @@ public:
     int getSize()
     {
         int count = 0;
-        VNode *current = front;
+        VNode* current = front;
         while (current != nullptr)
         {
             count++;
             current = current->next;
         }
         return count;
+    }
+
+    void deployVolunteersToRequest(int volunteerRequestID, const string& skill, int quantity) {
+        // Read all volunteer requests into an array
+        const int MAX_REQUESTS = 1000;
+        string allRequests[MAX_REQUESTS];
+        int reqCount = 0;
+        ifstream reqFile(fileVolunteerRequest);
+        string line, requestID, reqStatus;
+        bool foundRequest = false;
+        getline(reqFile, line);
+        allRequests[reqCount++] = line;
+        while (getline(reqFile, line) && reqCount < MAX_REQUESTS) {
+            stringstream ss(line);
+            string vReqID, reqID, qty, comment, date, status;
+            getline(ss, vReqID, ',');
+            getline(ss, reqID, ',');
+            getline(ss, qty, ',');
+            getline(ss, comment, ',');
+            getline(ss, date, ',');
+            getline(ss, status, ',');
+            if (stoi(vReqID) == volunteerRequestID) {
+                requestID = reqID;
+                reqStatus = status;
+                foundRequest = true;
+                // Update status to Assigned later
+                allRequests[reqCount++] = vReqID + "," + reqID + "," + qty + "," + comment + "," + date + ",Assigned";
+            }
+            else {
+                allRequests[reqCount++] = line;
+            }
+        }
+        reqFile.close();
+        if (!foundRequest) {
+            cout << "Volunteer request not found.\n";
+            return;
+        }
+        if (reqStatus == "Assigned") {
+            cout << "This volunteer request is already assigned.\n";
+            return;
+        }
+
+        // Build a queue of available volunteers with the chosen skill
+        struct QueueNode { VNode* volunteer; QueueNode* next; };
+        QueueNode* qFront = nullptr;
+        QueueNode* qRear = nullptr;
+        VNode* curr = front;
+        while (curr) {
+            if (curr->data.status == "Available" && curr->data.skill == skill) {
+                QueueNode* node = new QueueNode{ curr, nullptr };
+                if (!qRear) qFront = qRear = node;
+                else { qRear->next = node; qRear = node; }
+            }
+            curr = curr->next;
+        }
+
+        // Deploy the first N volunteers
+        int deployed = 0;
+        int assignmentID = 1;
+        ifstream assignFile(fileVolunteerAssignment);
+        getline(assignFile, line);
+        while (getline(assignFile, line)) assignmentID++;
+        assignFile.close();
+
+        ofstream assignOut(fileVolunteerAssignment, ios::app);
+        string today = getCurrentDateTime();
+        while (qFront && deployed < quantity) {
+            VNode* v = qFront->volunteer;
+            v->data.status = "Assigned";
+            string dateTime = getCurrentDateTime();
+            string yyyy = dateTime.substr(0, 4);
+            int mmInt = stoi(dateTime.substr(5, 2));
+            int ddInt = stoi(dateTime.substr(8, 2));
+            string formattedDate = to_string(ddInt) + "-" + to_string(mmInt) + "-" + yyyy;
+            assignOut << assignmentID++ << "," << v->data.volunteerID << "," << requestID << "," << formattedDate << ",Assigned\n";
+            QueueNode* temp = qFront;
+            qFront = qFront->next;
+            delete temp;
+            deployed++;
+        }
+        assignOut.close();
+        if (deployed < quantity) {
+            cout << "Not enough available volunteers with skill " << skill << ". Only " << deployed << " assigned.\n";
+        }
+        else {
+            cout << "Successfully assigned " << deployed << " volunteers with skill " << skill << ".\n";
+        }
+
+        // Update VolunteerRequest.csv status to Assigned
+        ofstream reqOut(fileVolunteerRequest);
+        for (int i = 0; i < reqCount; ++i) reqOut << allRequests[i] << "\n";
+        reqOut.close();
+
+        saveVolunteersToCSV();
     }
 };
