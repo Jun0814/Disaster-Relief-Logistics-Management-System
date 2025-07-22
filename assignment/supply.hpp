@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include "structures.hpp"
 using namespace std;
 
 struct Node
@@ -47,7 +48,7 @@ public:
         Node *temp = top;
         top = top->next;
         delete temp;
-        cout << "Dispatched box ID: " << box
+        cout << "Dispatched box ID: " << box.supplyID
              << ", Type: " << box.type
              << ", Quantity: " << box.quantity << "\n";
     }
@@ -64,7 +65,7 @@ public:
         while (current != nullptr)
         {
             SupplyBox box = current->data;
-            cout << "ID: " << box
+            cout << "ID: " << box.supplyID
                  << ", Type: " << box.type
                  << ", Quantity: " << box.quantity << "\n";
             current = current->next;

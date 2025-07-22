@@ -1,0 +1,6 @@
+Vehicle ID,Plate Number,Status
+4,abcd123,available
+5,abcd1234,available
+1,ABCD,available
+2,abcd,unavailable
+3,abcd,available

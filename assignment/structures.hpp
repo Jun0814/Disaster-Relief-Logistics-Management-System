@@ -18,7 +18,7 @@ string fileTransportOrder = "database/TransportOrder.csv";
 string fileVolunteerRequest = "database/VolunteerRequest.csv";
 
 // Structure definitions
-struct Supply
+struct SupplyBox
 {
     int supplyID;
     string type;
@@ -73,8 +73,7 @@ struct VolunteerAssignment
 
 struct SupplyNode
 {
-    int supplyID;
-    int quantity;
+    SupplyBox supply;
     SupplyNode *next;
 };
 

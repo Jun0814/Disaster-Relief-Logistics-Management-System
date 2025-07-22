@@ -1,0 +1,11 @@
+requestID,location,type,urgency,status,date
+3,Sydney,Fire,10,Resolved,20-7-2025
+6,Mumbai,Earthquake,9,Assigned,20-7-2025
+2,Jakarta,Medical,8,Pending,18-7-2025
+9,Delhi,Fire,8,Assigned,20-7-2025
+4,Manila,Flood,7,Pending,19-7-2025
+8,Hanoi,Flood,6,Pending,19-7-2025
+1,Tailand,Food,5,Assigned,19-7-2025
+7,Bangkok,Food,4,Assigned,18-7-2025
+5,Tokyo,Medical,3,Assigned,17-7-2025
+10,Singapore,Medical,2,Pending,17-7-2025
