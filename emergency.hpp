@@ -3,6 +3,8 @@
 #include <fstream>
 #include <sstream>
 #include <direct.h> // For _mkdir
+#include <sstream>
+#include <direct.h> // For _mkdir
 #include "structures.hpp"
 
 using namespace std;
@@ -108,6 +110,8 @@ public:
             }
             newNode->next = curr->next;
             curr->next = newNode;
+            newNode->next = curr->next;
+            curr->next = newNode;
         }
 
         cout << "Logged Emergency Request ID: " << newNode->request.requestID << "\n";
@@ -152,6 +156,7 @@ public:
         }
 
         // Show pending requests
+        // Show pending requests
         cout << "\n-- Pending Emergency Requests --\n";
         cout << "------------------------------------------------------------\n";
         cout << "| ID | Location     | Type         | Urgency | Status  |\n";
@@ -179,7 +184,9 @@ public:
         }
 
         // Get request ID
+        // Get request ID
         int selectID;
+        cout << "Enter the Request ID to request items for: ";
         cout << "Enter the Request ID to request items for: ";
         cin >> selectID;
 
@@ -197,7 +204,10 @@ public:
 
         cout << "Requesting items for Request ID: " << curr->request.requestID
              << " | Location: " << curr->request.location << endl;
+        cout << "Requesting items for Request ID: " << curr->request.requestID
+             << " | Location: " << curr->request.location << endl;
 
+        // Request supplies
         // Request supplies
         char more = 'y';
         cout << "Request supplies? (y/n): ";
@@ -207,7 +217,10 @@ public:
             int supplyID, quantity;
             cout << "Enter Supply ID: ";
             cin >> supplyID;
+            cin >> supplyID;
             cout << "Enter Quantity: ";
+            cin >> quantity;
+            saveSupplyRequest(supplyID, curr->request.requestID, quantity);
             cin >> quantity;
             saveSupplyRequest(supplyID, curr->request.requestID, quantity);
             cout << "Add more supplies? (y/n): ";
@@ -248,6 +261,7 @@ public:
             cout << "No pending requests to process.\n";
             return;
         }
+        cout << "\n-- Most Critical Request --\n";
         cout << "\n-- Most Critical Request --\n";
         cout << "----------------------------------------------------------------------------\n";
         cout << "| ID | Location     | Type         | Urgency | Status    | Date       |\n";
@@ -469,6 +483,7 @@ public:
             curr = curr->next;
         }
         cout << "----------------------------------------------------------------------------------------------------------------\n";
+        cout << "----------------------------------------------------------------------------------------------------------------\n";
     }
 
     void loadFromFile()
@@ -518,6 +533,8 @@ public:
                 {
                     curr = curr->next;
                 }
+                node->next = curr->next;
+                curr->next = node;
                 node->next = curr->next;
                 curr->next = node;
             }

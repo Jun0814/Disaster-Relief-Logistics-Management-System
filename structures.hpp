@@ -8,17 +8,17 @@
 using namespace std;
 
 // Global file names
-string fileSupplyBox = "database/SupplyBox.csv";
-string fileVolunteer = "database/Volunteer.csv";
-string fileEmergencyRequest = "database/EmergencyRequest.csv";
-string fileSupplyRequest = "database/SupplyRequest.csv";
+string fileSupplyBox = "../database/SupplyBox.csv";
+string fileVolunteer = "../database/Volunteer.csv";
+string fileEmergencyRequest = "../database/EmergencyRequest.csv";
+string fileSupplyRequest = "../database/SupplyRequest.csv";
+string fileVolunteerRequest = "../database/VolunteerRequest.csv";
 string fileVolunteerAssignment = "database/VolunteerAssignment.csv";
 string fileVehicle = "database/Vehicle.csv";
 string fileTransportOrder = "database/TransportOrder.csv";
-string fileVolunteerRequest = "database/VolunteerRequest.csv";
 
 // Structure definitions
-struct SupplyBox
+struct Supply
 {
     int supplyID;
     string type;
@@ -73,7 +73,7 @@ struct VolunteerAssignment
 
 struct SupplyNode
 {
-    SupplyBox supply;
+    Supply supply;
     SupplyNode *next;
 };
 

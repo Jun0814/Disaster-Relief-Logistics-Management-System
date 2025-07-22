@@ -2,6 +2,7 @@
 #include <limits>
 #include "emergency.hpp"
 #include "volunteer.hpp"
+#include "supply.hpp"
 #include "transport.hpp"
 
 using namespace std;
@@ -15,8 +16,6 @@ void clearCinBuffer()
 
 int main()
 {
-    // EmergencyList coordinator;
-
     int choice;
 
     while (true)
@@ -38,6 +37,68 @@ int main()
 
         switch (choice)
         {
+        case 1:
+        {
+            SupplyManager sm;
+            int supplyChoice;
+            do
+            {
+                cout << "\n-- Supply Base Manager Menu --\n";
+                cout << "1. Add/Update Supply\n";
+                cout << "2. Delete Supply\n";
+                cout << "3. View All Supplies\n";
+                cout << "4. View Pending Supply Requests\n";
+                cout << "5. Assign Supply to Request\n";
+                cout << "0. Back to Main Menu\n";
+                cout << "Enter choice: ";
+                cin >> supplyChoice;
+                switch (supplyChoice)
+                {
+                case 1:
+                {
+                    string type;
+                    int qty;
+                    cout << "Enter Supply Type: ";
+                    cin.ignore();
+                    getline(cin, type);
+                    cout << "Enter Quantity: ";
+                    cin >> qty;
+                    sm.addSupplyByType(type, qty);
+                    break;
+                }
+                case 2:
+                {
+                    string type;
+                    cout << "Enter Supply Type to delete: ";
+                    cin.ignore();
+                    getline(cin, type);
+                    sm.deleteSupplyType(type);
+                    break;
+                }
+                case 3:
+                    sm.viewSupplies();
+                    break;
+                case 4:
+                    sm.viewPendingSupplyRequests();
+                    break;
+                case 5:
+                {
+                    int reqID;
+                    cout << "Enter Supply Request ID to assign: ";
+                    cin >> reqID;
+                    sm.assignSupplyToRequest(reqID);
+                    break;
+                }
+                case 0:
+                    cout << "Returning to Main Menu...\n";
+                    break;
+                default:
+                    cout << "Invalid supply menu choice.\n";
+                    break;
+                }
+            } while (supplyChoice != 0);
+            break;
+        }
         case 2:
         {
             VolunteerManager vm;
@@ -96,13 +157,13 @@ int main()
             int emergencyChoice;
             do
             {
-                cout << "\n-- Emergency Request Coordinator Menu --" << endl;
-                cout << "1. Log Emergency Request" << endl;
-                cout << "2. Assign Emergency Request" << endl;
-                cout << "3. Process Most Critical Request" << endl;
-                cout << "4. View Pending Requests" << endl;
-                cout << "5. View All Emergency Requests" << endl;
-                cout << "0. Back to Main Menu" << endl;
+                cout << "\n-- Emergency Request Coordinator Menu --\n";
+                cout << "1. Log Emergency Request\n";
+                cout << "2. Request Emergency Items\n";
+                cout << "3. Process Most Critical Request\n";
+                cout << "4. View Pending Requests\n";
+                cout << "5. View All Emergency Requests\n";
+                cout << "0. Back to Main Menu\n";
                 cout << "Enter choice: ";
 
                 if (!(cin >> emergencyChoice))
@@ -121,18 +182,18 @@ int main()
                     cout << "Enter Location: ";
                     cin.ignore();
                     getline(cin, loc);
-                    cout << "Enter Type (Medical, Staff, Food): ";
+                    cout << "Enter Type (Volunteer, Supply): ";
                     getline(cin, typ);
                     cout << "Enter Urgency (1-10): ";
                     cin >> urg;
-                    cout << "Enter Date (Logged Date): ";
+                    cout << "Enter Date (DD-MM-YYYY): ";
                     cin.ignore();
                     getline(cin, dt);
                     pq.insert(loc, typ, urg, dt);
                     break;
                 }
                 case 2:
-                    pq.assignSupplies();
+                    pq.requestEmergencyItems();
                     break;
                 case 3:
                     pq.processMostCritical();
@@ -150,7 +211,6 @@ int main()
                     cout << "Invalid emergency menu choice.\n";
                     break;
                 }
-
             } while (emergencyChoice != 0);
             break;
         }
