@@ -9,13 +9,13 @@ class TransportScheduler
 {
 
 private:
-    VehicleNode* vehicleTail;
-    SupplyRequestNode* requestTail;
-    TransportOrderNode* orderTail;
-    EmergencyRequestNode* emergencyTail;
-    VolunteerAssignmentNode* volunteerAssignmentsTail;
-    SupplyNode* supplyTail;
-    VolunteerNode* volunteerTail;
+    VehicleNode *vehicleTail;
+    SupplyRequestNode *requestTail;
+    TransportOrderNode *orderTail;
+    EmergencyRequestNode *emergencyTail;
+    VolunteerAssignmentNode *volunteerAssignmentsTail;
+    SupplyNode *supplyTail;
+    VolunteerNode *volunteerTail;
 
     int incrementVehicleID = 1;
     int incrementTransportID = 1;
@@ -45,11 +45,11 @@ public:
             return;
 
         // Vehicle
-        VehicleNode* start = vehicleTail->next;
-        VehicleNode* current = start;
+        VehicleNode *start = vehicleTail->next;
+        VehicleNode *current = start;
         do
         {
-            VehicleNode* nextNode = current->next;
+            VehicleNode *nextNode = current->next;
             delete current;
             current = nextNode;
         } while (current != start);
@@ -58,11 +58,11 @@ public:
         // Supply Requests
         if (!requestTail)
             return;
-        SupplyRequestNode* startRequest = requestTail->next;
-        SupplyRequestNode* currentRequest = startRequest;
+        SupplyRequestNode *startRequest = requestTail->next;
+        SupplyRequestNode *currentRequest = startRequest;
         do
         {
-            SupplyRequestNode* nextNode = currentRequest->next;
+            SupplyRequestNode *nextNode = currentRequest->next;
             delete currentRequest;
             currentRequest = nextNode;
         } while (currentRequest != startRequest);
@@ -71,11 +71,11 @@ public:
         // Transport Order
         if (!orderTail)
             return;
-        TransportOrderNode* startOrder = orderTail->next;
-        TransportOrderNode* currentOrder = startOrder;
+        TransportOrderNode *startOrder = orderTail->next;
+        TransportOrderNode *currentOrder = startOrder;
         do
         {
-            TransportOrderNode* nextNode = currentOrder->next;
+            TransportOrderNode *nextNode = currentOrder->next;
             delete currentOrder;
             currentOrder = nextNode;
         } while (currentOrder != startOrder);
@@ -84,11 +84,11 @@ public:
         // Emergency Requests
         if (!emergencyTail)
             return;
-        EmergencyRequestNode* startEmergency = emergencyTail->next;
-        EmergencyRequestNode* currentEmergency = startEmergency;
+        EmergencyRequestNode *startEmergency = emergencyTail->next;
+        EmergencyRequestNode *currentEmergency = startEmergency;
         do
         {
-            EmergencyRequestNode* nextNode = currentEmergency->next;
+            EmergencyRequestNode *nextNode = currentEmergency->next;
             delete currentEmergency;
             currentEmergency = nextNode;
         } while (currentEmergency != startEmergency);
@@ -97,11 +97,11 @@ public:
         // Volunteer Requests
         if (!volunteerAssignmentsTail)
             return;
-        VolunteerAssignmentNode* startVolunteer = volunteerAssignmentsTail->next;
-        VolunteerAssignmentNode* currentVolunteer = startVolunteer;
+        VolunteerAssignmentNode *startVolunteer = volunteerAssignmentsTail->next;
+        VolunteerAssignmentNode *currentVolunteer = startVolunteer;
         do
         {
-            VolunteerAssignmentNode* nextNode = currentVolunteer->next;
+            VolunteerAssignmentNode *nextNode = currentVolunteer->next;
             delete currentVolunteer;
             currentVolunteer = nextNode;
         } while (currentVolunteer != startVolunteer);
@@ -110,11 +110,11 @@ public:
         // Supply
         if (!supplyTail)
             return;
-        SupplyNode* startSupply = supplyTail->next;
-        SupplyNode* currentSupply = startSupply;
+        SupplyNode *startSupply = supplyTail->next;
+        SupplyNode *currentSupply = startSupply;
         do
         {
-            SupplyNode* nextNode = currentSupply->next;
+            SupplyNode *nextNode = currentSupply->next;
             delete currentSupply;
             currentSupply = nextNode;
         } while (currentSupply != startSupply);
@@ -123,12 +123,12 @@ public:
         // Volunteers
         if (!volunteerTail)
             return;
-        VolunteerNode* startVolunteerNode = volunteerTail->next;
-        VolunteerNode* currentVolunteerNode = startVolunteerNode;
+        VolunteerNode *startVolunteerNode = volunteerTail->next;
+        VolunteerNode *currentVolunteerNode = startVolunteerNode;
 
         do
         {
-            VolunteerNode* nextNode = currentVolunteerNode->next;
+            VolunteerNode *nextNode = currentVolunteerNode->next;
             delete currentVolunteerNode;
             currentVolunteerNode = nextNode;
         } while (currentVolunteerNode != startVolunteerNode);
@@ -170,8 +170,8 @@ public:
                         cerr << "Invalid status in line: " << line << endl;
                         continue;
                     }
-                    Vehicle vehicle = { id, plate, status };
-                    VehicleNode* newNode = new VehicleNode{ vehicle, nullptr };
+                    Vehicle vehicle = {id, plate, status};
+                    VehicleNode *newNode = new VehicleNode{vehicle, nullptr};
                     if (!vehicleTail)
                     {
                         vehicleTail = newNode;
@@ -185,7 +185,7 @@ public:
                     }
                     incrementVehicleID = max(incrementVehicleID, id + 1);
                 }
-                catch (const exception& e)
+                catch (const exception &e)
                 {
                     cerr << "Error parsing line: " << line << " (" << e.what() << ")\n";
                 }
@@ -224,8 +224,8 @@ public:
                 {
                     int requestID = stoi(requestIDStr);
                     int urgency = stoi(urgencyStr);
-                    EmergencyRequest request = { requestID, location, type, urgency, status, date };
-                    EmergencyRequestNode* newNode = new EmergencyRequestNode{ request, nullptr };
+                    EmergencyRequest request = {requestID, location, type, urgency, status, date};
+                    EmergencyRequestNode *newNode = new EmergencyRequestNode{request, nullptr};
                     if (!emergencyTail)
                     {
                         emergencyTail = newNode;
@@ -238,7 +238,7 @@ public:
                         emergencyTail = newNode;
                     }
                 }
-                catch (const exception& e)
+                catch (const exception &e)
                 {
                     cerr << "Error parsing line: " << line << " (" << e.what() << ")\n";
                 }
@@ -279,8 +279,8 @@ public:
                     int supplyID = stoi(supplyIDStr);
                     int requestID = stoi(requestIDStr);
                     int quantity = stoi(quantityStr);
-                    SupplyRequest request = { supplyRequestID, supplyID, requestID, quantity, date, status };
-                    SupplyRequestNode* newNode = new SupplyRequestNode{ request, nullptr };
+                    SupplyRequest request = {supplyRequestID, supplyID, requestID, quantity, date, status};
+                    SupplyRequestNode *newNode = new SupplyRequestNode{request, nullptr};
                     if (!requestTail)
                     {
                         requestTail = newNode;
@@ -293,7 +293,7 @@ public:
                         requestTail = newNode;
                     }
                 }
-                catch (const exception& e)
+                catch (const exception &e)
                 {
                     cerr << "Error parsing line: " << line << " (" << e.what() << ")\n";
                 }
@@ -333,8 +333,8 @@ public:
                     int transportID = stoi(transportIDStr);
                     int vehicleID = stoi(vehicleIDStr);
                     int supplyRequestID = stoi(supplyRequestIDStr);
-                    TransportOrder order = { transportID, vehicleID, supplyRequestID, type, date, status };
-                    TransportOrderNode* newNode = new TransportOrderNode{ order, nullptr };
+                    TransportOrder order = {transportID, vehicleID, supplyRequestID, type, date, status};
+                    TransportOrderNode *newNode = new TransportOrderNode{order, nullptr};
                     if (!orderTail)
                     {
                         orderTail = newNode;
@@ -347,7 +347,7 @@ public:
                         orderTail = newNode;
                     }
                 }
-                catch (const exception& e)
+                catch (const exception &e)
                 {
                     cerr << "Error parsing line: " << line << " (" << e.what() << ")\n";
                 }
@@ -386,8 +386,8 @@ public:
                     int assignmentID = stoi(assignmentIDStr);
                     int volunteerID = stoi(volunteerIDStr);
                     int requestID = stoi(requestIDStr);
-                    VolunteerAssignment assignment = { assignmentID, volunteerID, requestID, date, status };
-                    VolunteerAssignmentNode* newNode = new VolunteerAssignmentNode{ assignment, nullptr };
+                    VolunteerAssignment assignment = {assignmentID, volunteerID, requestID, date, status};
+                    VolunteerAssignmentNode *newNode = new VolunteerAssignmentNode{assignment, nullptr};
                     if (!volunteerAssignmentsTail)
                     {
                         volunteerAssignmentsTail = newNode;
@@ -400,7 +400,7 @@ public:
                         volunteerAssignmentsTail = newNode;
                     }
                 }
-                catch (const exception& e)
+                catch (const exception &e)
                 {
                     cerr << "Error parsing line: " << line << " (" << e.what() << ")\n";
                 }
@@ -428,13 +428,13 @@ public:
         {
             istringstream iss(line);
             string supplyIDStr, type, quantityStr;
-            if (getline(iss, supplyIDStr, ',') && getline(iss, type) && getline(iss, quantityStr))
+            if (getline(iss, supplyIDStr, ',') && getline(iss, type, ',') && getline(iss, quantityStr))
             {
                 try
                 {
                     int supplyID = stoi(supplyIDStr);
                     int quantity = stoi(quantityStr);
-                    SupplyNode* newNode = new SupplyNode{ supplyID, type, quantity, nullptr };
+                    SupplyNode *newNode = new SupplyNode{supplyID, type, quantity, nullptr};
                     if (!supplyTail)
                     {
                         supplyTail = newNode;
@@ -447,7 +447,7 @@ public:
                         supplyTail = newNode;
                     }
                 }
-                catch (const exception& e)
+                catch (const exception &e)
                 {
                     cerr << "Error parsing line: " << line << " (" << e.what() << ")\n";
                 }
@@ -474,13 +474,13 @@ public:
         while (getline(file, line))
         {
             istringstream iss(line);
-            string idStr, name, contact, skill;
-            if (getline(iss, idStr, ',') && getline(iss, name, ',') && getline(iss, contact, ',') && getline(iss, skill))
+            string idStr, name, contact, skill, status;
+            if (getline(iss, idStr, ',') && getline(iss, name, ',') && getline(iss, contact, ',') && getline(iss, skill, ',') && getline(iss, status))
             {
                 try
                 {
                     int id = stoi(idStr);
-                    VolunteerNode* newNode = new VolunteerNode{ id, name, contact, skill, nullptr };
+                    VolunteerNode *newNode = new VolunteerNode{id, name, contact, skill, status, nullptr};
                     if (!volunteerTail)
                     {
                         volunteerTail = newNode;
@@ -493,7 +493,7 @@ public:
                         volunteerTail = newNode;
                     }
                 }
-                catch (const exception& e)
+                catch (const exception &e)
                 {
                     cerr << "Error parsing line: " << line << " (" << e.what() << ")\n";
                 }
@@ -506,7 +506,7 @@ public:
         file.close();
     }
 
-    void addVehicleIntoFile(const Vehicle& vehicle)
+    void addVehicleIntoFile(const Vehicle &vehicle)
     {
         ofstream file(fileVehicle, ios::app);
         if (!file)
@@ -520,19 +520,19 @@ public:
         }
 
         file << vehicle.vehicleID << ","
-            << vehicle.plateNumber << ","
-            << vehicle.status << endl;
+             << vehicle.plateNumber << ","
+             << vehicle.status << endl;
 
         file.close();
     }
 
     void addVehicle(string plateNumber, string status = "available")
     {
-        Vehicle newVehicle = { incrementVehicleID++, plateNumber, status };
+        Vehicle newVehicle = {incrementVehicleID++, plateNumber, status};
 
         if (vehicleTail)
         {
-            VehicleNode* curr = vehicleTail->next;
+            VehicleNode *curr = vehicleTail->next;
             do
             {
                 if (curr->vehicle.plateNumber == newVehicle.plateNumber)
@@ -544,7 +544,7 @@ public:
             } while (curr != vehicleTail->next);
         }
 
-        VehicleNode* newNode = new VehicleNode{ newVehicle, nullptr };
+        VehicleNode *newNode = new VehicleNode{newVehicle, nullptr};
 
         if (!vehicleTail)
         {
@@ -561,8 +561,8 @@ public:
         addVehicleIntoFile(newVehicle);
 
         cout << "Vehicle added: ID " << newVehicle.vehicleID
-            << ", Car Plate: " << newVehicle.plateNumber
-            << ", Status: " << newVehicle.status << endl;
+             << ", Car Plate: " << newVehicle.plateNumber
+             << ", Status: " << newVehicle.status << endl;
     }
 
     void rotateVehicleShift()
@@ -575,7 +575,7 @@ public:
 
         vehicleTail = vehicleTail->next;
         cout << "Vehicle schedule rotated. Vehicle " << vehicleTail->next->vehicle.plateNumber
-            << " (ID: " << vehicleTail->next->vehicle.vehicleID << ") is now on duty.\n";
+             << " (ID: " << vehicleTail->next->vehicle.vehicleID << ") is now on duty.\n";
     }
 
     void viewAllVehicles()
@@ -589,16 +589,16 @@ public:
         cout << "\n-- All Vehicles --\n";
         cout << "------------------------------------------------\n";
         cout << "| " << left << setw(12) << "Vehicle ID"
-            << "| " << setw(15) << "Plate Number"
-            << "| " << setw(13) << "Status" << "|\n";
+             << "| " << setw(15) << "Plate Number"
+             << "| " << setw(13) << "Status" << "|\n";
         cout << "------------------------------------------------\n";
 
-        VehicleNode* curr = vehicleTail->next;
+        VehicleNode *curr = vehicleTail->next;
         do
         {
             cout << "| " << left << setw(12) << curr->vehicle.vehicleID
-                << "| " << setw(15) << curr->vehicle.plateNumber
-                << "| " << setw(13) << curr->vehicle.status << "|\n";
+                 << "| " << setw(15) << curr->vehicle.plateNumber
+                 << "| " << setw(13) << curr->vehicle.status << "|\n";
             curr = curr->next;
         } while (curr != vehicleTail->next);
 
@@ -617,12 +617,12 @@ public:
         file << "Vehicle ID,Plate Number,Status\n";
         if (vehicleTail)
         {
-            VehicleNode* currWrite = vehicleTail->next;
+            VehicleNode *currWrite = vehicleTail->next;
             do
             {
                 file << currWrite->vehicle.vehicleID << ","
-                    << currWrite->vehicle.plateNumber << ","
-                    << currWrite->vehicle.status << "\n";
+                     << currWrite->vehicle.plateNumber << ","
+                     << currWrite->vehicle.status << "\n";
                 currWrite = currWrite->next;
             } while (currWrite != vehicleTail->next);
         }
@@ -631,8 +631,8 @@ public:
 
     void removeVehicle(int vehicleID)
     {
-        VehicleNode* curr = vehicleTail->next;
-        VehicleNode* prev = vehicleTail;
+        VehicleNode *curr = vehicleTail->next;
+        VehicleNode *prev = vehicleTail;
 
         do
         {
@@ -680,22 +680,22 @@ public:
         cout << "\n-- All Ongoing Emergency Requests --\n";
         cout << "------------------------------------------------------------------------------------------\n";
         cout << "| " << left << setw(21) << "Emergency Request ID"
-            << "| " << setw(15) << "Location"
-            << "| " << setw(15) << "Date"
-            << "| " << setw(12) << "Urgency"
-            << "| " << setw(12) << "Status" << "|\n";
+             << "| " << setw(15) << "Location"
+             << "| " << setw(15) << "Date"
+             << "| " << setw(12) << "Urgency"
+             << "| " << setw(12) << "Status" << "|\n";
         cout << "------------------------------------------------------------------------------------------\n";
 
-        EmergencyRequestNode* curr = emergencyTail->next;
+        EmergencyRequestNode *curr = emergencyTail->next;
         do
         {
             if (curr->request.status == "Assigned")
             {
                 cout << "| " << left << setw(21) << curr->request.requestID
-                    << "| " << setw(15) << curr->request.location
-                    << "| " << setw(15) << curr->request.date
-                    << "| " << setw(12) << curr->request.urgency
-                    << "| " << setw(12) << curr->request.status << "|\n";
+                     << "| " << setw(15) << curr->request.location
+                     << "| " << setw(15) << curr->request.date
+                     << "| " << setw(12) << curr->request.urgency
+                     << "| " << setw(12) << curr->request.status << "|\n";
             }
             curr = curr->next;
         } while (curr != emergencyTail->next);
@@ -705,7 +705,7 @@ public:
 
     bool validatePendingRequests(int emergencyRequestID)
     {
-        EmergencyRequestNode* currEmergency = emergencyTail->next;
+        EmergencyRequestNode *currEmergency = emergencyTail->next;
         bool emergencyExists = false;
         do
         {
@@ -713,7 +713,7 @@ public:
                 currEmergency->request.status == "Assigned")
             {
                 cout << "Emergency Request ID: " << emergencyRequestID
-                    << " is currently assigned and has pending requests.\n";
+                     << " is currently assigned and has pending requests.\n";
                 emergencyExists = true;
                 return emergencyExists;
             }
@@ -726,34 +726,34 @@ public:
     void viewSupplyRequests(int emergencyRequestID)
     {
         cout << "\n-- All Supply Requests for Emergency Request ID: "
-            << emergencyRequestID
-            << " --"
-            << endl;
-        cout << "---------------------------------------------------------------------------------\n";
+             << emergencyRequestID
+             << " --"
+             << endl;
+        cout << "--------------------------------------------------------------------------------------------\n";
         cout << "| " << left << setw(18) << "Supply Request ID"
-            << "| " << setw(10) << "Supply ID"
-            << "| " << setw(11) << "Request ID"
-            << "| " << setw(9) << "Quantity"
-            << "| " << setw(10) << "Date Time"
-            << "| " << setw(10) << "Status" << "|\n";
-        cout << "---------------------------------------------------------------------------------\n";
+             << "| " << setw(10) << "Supply ID"
+             << "| " << setw(11) << "Request ID"
+             << "| " << setw(9) << "Quantity"
+             << "| " << setw(21) << "Date Time"
+             << "| " << setw(10) << "Status" << "|\n";
+        cout << "--------------------------------------------------------------------------------------------\n";
 
-        SupplyRequestNode* curr = requestTail->next;
+        SupplyRequestNode *curr = requestTail->next;
         do
         {
             if (curr->request.requestID == emergencyRequestID)
             {
                 cout << "| " << left << setw(18) << curr->request.supplyRequestID
-                    << "| " << setw(10) << curr->request.supplyID
-                    << "| " << setw(11) << curr->request.requestID
-                    << "| " << setw(9) << curr->request.quantity
-                    << "| " << setw(10) << curr->request.date
-                    << "| " << setw(10) << curr->request.status << "|\n";
+                     << "| " << setw(10) << curr->request.supplyID
+                     << "| " << setw(11) << curr->request.requestID
+                     << "| " << setw(9) << curr->request.quantity
+                     << "| " << setw(21) << curr->request.date
+                     << "| " << setw(10) << curr->request.status << "|\n";
             }
             curr = curr->next;
         } while (curr != requestTail->next);
 
-        cout << "---------------------------------------------------------------------------------\n";
+        cout << "--------------------------------------------------------------------------------------------\n";
     }
 
     void viewVolunteerAssignments(int emergencyRequestID)
@@ -765,25 +765,25 @@ public:
         }
 
         cout << "\n-- All Volunteer Assignments "
-            << "for Emergency Request ID: "
-            << emergencyRequestID
-            << " --\n";
-        cout << "--------------------------------------------------------------------------------------\n";
+             << "for Emergency Request ID: "
+             << emergencyRequestID
+             << " --\n";
+        cout << "-------------------------------------------------------------------------------------------------\n";
         cout << "| " << left << setw(14) << "Assignment ID"
-            << "| " << setw(13) << "Volunteer ID"
-            << "| " << setw(15) << "Volunteer Name"
-            << "| " << setw(11) << "Request ID"
-            << "| " << setw(10) << "Date"
-            << "| " << setw(10) << "Status" << "|\n";
-        cout << "--------------------------------------------------------------------------------------\n";
+             << "| " << setw(13) << "Volunteer ID"
+             << "| " << setw(15) << "Volunteer Name"
+             << "| " << setw(11) << "Request ID"
+             << "| " << setw(21) << "Date"
+             << "| " << setw(10) << "Status" << "|\n";
+        cout << "-------------------------------------------------------------------------------------------------\n";
 
-        VolunteerAssignmentNode* curr = volunteerAssignmentsTail->next;
+        VolunteerAssignmentNode *curr = volunteerAssignmentsTail->next;
         do
         {
             if (curr->assignment.requestID == emergencyRequestID)
             {
                 string volunteerName = "Unknown";
-                VolunteerNode* vol = volunteerTail->next;
+                VolunteerNode *vol = volunteerTail->next;
                 do
                 {
                     if (vol->volunteer.volunteerID == curr->assignment.volunteerID)
@@ -795,19 +795,19 @@ public:
                 } while (vol && vol != volunteerTail->next);
 
                 cout << "| " << left << setw(14) << curr->assignment.assignmentID
-                    << "| " << setw(13) << curr->assignment.volunteerID
-                    << "| " << setw(15) << volunteerName
-                    << "| " << setw(11) << curr->assignment.requestID
-                    << "| " << setw(10) << curr->assignment.date
-                    << "| " << setw(10) << curr->assignment.status << "|\n";
+                     << "| " << setw(13) << curr->assignment.volunteerID
+                     << "| " << setw(15) << volunteerName
+                     << "| " << setw(11) << curr->assignment.requestID
+                     << "| " << setw(21) << curr->assignment.date
+                     << "| " << setw(10) << curr->assignment.status << "|\n";
             }
             curr = curr->next;
         } while (curr && curr != volunteerAssignmentsTail->next);
 
-        cout << "--------------------------------------------------------------------------------------\n";
+        cout << "-------------------------------------------------------------------------------------------------\n";
     }
 
-    void addTransportOrderIntoFile(const TransportOrder& order)
+    void addTransportOrderIntoFile(const TransportOrder &order)
     {
         ofstream file(fileTransportOrder, ios::app);
         if (!file)
@@ -820,11 +820,11 @@ public:
             file << "Transport ID,Vehicle ID,Supply Request ID,Type,Date,Status\n";
         }
         file << order.orderID << ","
-            << order.vehicleID << ","
-            << order.requestID << ","
-            << order.type << ","
-            << order.date << ","
-            << order.status << endl;
+             << order.vehicleID << ","
+             << order.requestID << ","
+             << order.type << ","
+             << order.date << ","
+             << order.status << endl;
 
         file.close();
     }
@@ -840,19 +840,44 @@ public:
         supplyFile << "supplyRequestID,supplyID,requestID,quantity,date,status\n";
         if (requestTail)
         {
-            SupplyRequestNode* currWrite = requestTail->next;
+            SupplyRequestNode *currWrite = requestTail->next;
             do
             {
                 supplyFile << currWrite->request.supplyRequestID << ","
-                    << currWrite->request.supplyID << ","
-                    << currWrite->request.requestID << ","
-                    << currWrite->request.quantity << ","
-                    << currWrite->request.date << ","
-                    << currWrite->request.status << "\n";
+                           << currWrite->request.supplyID << ","
+                           << currWrite->request.requestID << ","
+                           << currWrite->request.quantity << ","
+                           << currWrite->request.date << ","
+                           << currWrite->request.status << "\n";
                 currWrite = currWrite->next;
             } while (currWrite != requestTail->next);
         }
         supplyFile.close();
+    }
+
+    void updateVolunteer()
+    {
+        ofstream volunteerFile(fileVolunteer);
+        if (!volunteerFile)
+        {
+            cerr << "Error opening file: volunteer.csv" << endl;
+            return;
+        }
+        volunteerFile << "Volunteer ID,Name,Contact,Skill,Status\n";
+        if (volunteerTail)
+        {
+            VolunteerNode *currWrite = volunteerTail->next;
+            do
+            {
+                volunteerFile << currWrite->volunteer.volunteerID << ","
+                              << currWrite->volunteer.name << ","
+                              << currWrite->volunteer.contact << ","
+                              << currWrite->volunteer.skill << ","
+                              << currWrite->volunteer.status << "\n";
+                currWrite = currWrite->next;
+            } while (currWrite != volunteerTail->next);
+        }
+        volunteerFile.close();
     }
 
     void updateVolunteerAssignment()
@@ -866,14 +891,14 @@ public:
         volunteerFile << "assignmentID,volunteerID,requestID,date,status\n";
         if (volunteerAssignmentsTail)
         {
-            VolunteerAssignmentNode* currWrite = volunteerAssignmentsTail->next;
+            VolunteerAssignmentNode *currWrite = volunteerAssignmentsTail->next;
             do
             {
                 volunteerFile << currWrite->assignment.assignmentID << ","
-                    << currWrite->assignment.volunteerID << ","
-                    << currWrite->assignment.requestID << ","
-                    << currWrite->assignment.date << ","
-                    << currWrite->assignment.status << "\n";
+                              << currWrite->assignment.volunteerID << ","
+                              << currWrite->assignment.requestID << ","
+                              << currWrite->assignment.date << ","
+                              << currWrite->assignment.status << "\n";
                 currWrite = currWrite->next;
             } while (currWrite != volunteerAssignmentsTail->next);
         }
@@ -891,15 +916,15 @@ public:
         emergencyFile << "requestID,location,type,urgency,status,date\n";
         if (emergencyTail)
         {
-            EmergencyRequestNode* currWrite = emergencyTail->next;
+            EmergencyRequestNode *currWrite = emergencyTail->next;
             do
             {
                 emergencyFile << currWrite->request.requestID << ","
-                    << currWrite->request.location << ","
-                    << currWrite->request.type << ","
-                    << currWrite->request.urgency << ","
-                    << currWrite->request.status << ","
-                    << currWrite->request.date << "\n";
+                              << currWrite->request.location << ","
+                              << currWrite->request.type << ","
+                              << currWrite->request.urgency << ","
+                              << currWrite->request.status << ","
+                              << currWrite->request.date << "\n";
                 currWrite = currWrite->next;
             } while (currWrite != emergencyTail->next);
         }
@@ -914,9 +939,9 @@ public:
             return;
         }
 
-        VehicleNode* firstVehicle = vehicleTail->next;
+        VehicleNode *firstVehicle = vehicleTail->next;
 
-        VehicleNode* curr = vehicleTail->next;
+        VehicleNode *curr = vehicleTail->next;
         bool unavailable = true;
 
         do
@@ -938,20 +963,20 @@ public:
         if (firstVehicle->vehicle.status != "available")
         {
             cout << "First vehicle (ID: " << firstVehicle->vehicle.vehicleID
-                << ") is not available for assignment.\n";
+                 << ") is not available for assignment.\n";
             return;
         }
 
         firstVehicle->vehicle.status = "unavailable";
         cout << "Vehicle with ID " << firstVehicle->vehicle.vehicleID
-            << " assigned to Emergency Request ID: "
-            << emergencyRequestID << endl;
+             << " assigned to Emergency Request ID: "
+             << emergencyRequestID << endl;
 
         rotateVehicleShift();
 
         updateVehicle();
 
-        SupplyRequestNode* supplyCurr = requestTail->next;
+        SupplyRequestNode *supplyCurr = requestTail->next;
         bool foundSupply = false;
         do
         {
@@ -963,7 +988,7 @@ public:
             supplyCurr = supplyCurr->next;
         } while (supplyCurr != requestTail->next);
 
-        VolunteerAssignmentNode* volunteerCurr = volunteerAssignmentsTail->next;
+        VolunteerAssignmentNode *volunteerCurr = volunteerAssignmentsTail->next;
         bool foundVolunteer = false;
         do
         {
@@ -989,8 +1014,8 @@ public:
             type = "Volunteer";
         }
 
-        TransportOrder newOrder = { incrementTransportID++, firstVehicle->vehicle.vehicleID, emergencyRequestID, type, getCurrentDateTime(), "Deployed" };
-        TransportOrderNode* newNode = new TransportOrderNode{ newOrder, nullptr };
+        TransportOrder newOrder = {incrementTransportID++, firstVehicle->vehicle.vehicleID, emergencyRequestID, type, getCurrentDateTime(), "Deployed"};
+        TransportOrderNode *newNode = new TransportOrderNode{newOrder, nullptr};
 
         if (!orderTail)
         {
@@ -1004,7 +1029,7 @@ public:
             orderTail = newNode;
         }
 
-        EmergencyRequestNode* emergencyCurr = emergencyTail->next;
+        EmergencyRequestNode *emergencyCurr = emergencyTail->next;
         do
         {
             if (emergencyCurr->request.requestID == emergencyRequestID)
@@ -1032,22 +1057,22 @@ public:
         cout << "\n-- All Schedule Orders --\n";
         cout << "-------------------------------------------------------------------------------------------------------\n";
         cout << "| " << left << setw(13) << "Schedule ID"
-            << "| " << setw(13) << "Vehicle ID"
-            << "| " << setw(23) << "Emergency Request ID"
-            << "| " << setw(10) << "Type"
-            << "| " << setw(21) << "Date"
-            << "| " << setw(10) << "Status" << "|\n";
+             << "| " << setw(13) << "Vehicle ID"
+             << "| " << setw(23) << "Emergency Request ID"
+             << "| " << setw(10) << "Type"
+             << "| " << setw(21) << "Date"
+             << "| " << setw(10) << "Status" << "|\n";
         cout << "-------------------------------------------------------------------------------------------------------\n";
 
-        TransportOrderNode* curr = orderTail->next;
+        TransportOrderNode *curr = orderTail->next;
         do
         {
             cout << "| " << left << setw(13) << curr->order.orderID
-                << "| " << setw(13) << curr->order.vehicleID
-                << "| " << setw(23) << curr->order.requestID
-                << "| " << setw(10) << curr->order.type
-                << "| " << setw(21) << curr->order.date
-                << "| " << setw(10) << curr->order.status << "|\n";
+                 << "| " << setw(13) << curr->order.vehicleID
+                 << "| " << setw(23) << curr->order.requestID
+                 << "| " << setw(10) << curr->order.type
+                 << "| " << setw(21) << curr->order.date
+                 << "| " << setw(10) << curr->order.status << "|\n";
             curr = curr->next;
         } while (curr != orderTail->next);
 
@@ -1066,15 +1091,15 @@ public:
         file << "Transport ID,Vehicle ID,Supply Request ID,Type,Date,Status\n";
         if (orderTail)
         {
-            TransportOrderNode* currWrite = orderTail->next;
+            TransportOrderNode *currWrite = orderTail->next;
             do
             {
                 file << currWrite->order.orderID << ","
-                    << currWrite->order.vehicleID << ","
-                    << currWrite->order.requestID << ","
-                    << currWrite->order.type << ","
-                    << currWrite->order.date << ","
-                    << currWrite->order.status << "\n";
+                     << currWrite->order.vehicleID << ","
+                     << currWrite->order.requestID << ","
+                     << currWrite->order.type << ","
+                     << currWrite->order.date << ","
+                     << currWrite->order.status << "\n";
                 currWrite = currWrite->next;
             } while (currWrite != orderTail->next);
         }
@@ -1089,8 +1114,8 @@ public:
             return;
         }
 
-        TransportOrderNode* curr = orderTail->next;
-        TransportOrderNode* prev = orderTail;
+        TransportOrderNode *curr = orderTail->next;
+        TransportOrderNode *prev = orderTail;
         int vehicleID;
 
         do
@@ -1098,7 +1123,7 @@ public:
             if (curr->order.orderID == scheduleID)
             {
                 vehicleID = curr->order.vehicleID;
-                VehicleNode* vehicleCurr = vehicleTail->next;
+                VehicleNode *vehicleCurr = vehicleTail->next;
                 do
                 {
                     if (vehicleCurr->vehicle.vehicleID == vehicleID)
@@ -1111,7 +1136,7 @@ public:
                 updateVehicle();
 
                 int emergencyRequestID = curr->order.requestID;
-                EmergencyRequestNode* emergencyCurr = emergencyTail->next;
+                EmergencyRequestNode *emergencyCurr = emergencyTail->next;
                 do
                 {
                     if (emergencyCurr->request.requestID == emergencyRequestID)
@@ -1125,7 +1150,7 @@ public:
 
                 if (curr->order.type == "Supply" || curr->order.type == "Both")
                 {
-                    SupplyRequestNode* supplyCurr = requestTail->next;
+                    SupplyRequestNode *supplyCurr = requestTail->next;
                     do
                     {
                         if (supplyCurr->request.requestID == emergencyRequestID)
@@ -1136,19 +1161,30 @@ public:
                     } while (supplyCurr != requestTail->next);
                     updateSupplyRequest();
                 }
+
                 if (curr->order.type == "Volunteer" || curr->order.type == "Both")
                 {
-                    VolunteerAssignmentNode* volunteerCurr = volunteerAssignmentsTail->next;
+                    VolunteerAssignmentNode *volunteerCurr = volunteerAssignmentsTail->next;
                     do
                     {
                         if (volunteerCurr->assignment.requestID == emergencyRequestID)
                         {
                             volunteerCurr->assignment.status = "Resolved";
+                            VolunteerNode *volunteerCurrNode = volunteerTail->next;
+                            do
+                            {
+                                if (volunteerCurrNode->volunteer.volunteerID == volunteerCurr->assignment.volunteerID)
+                                {
+                                    volunteerCurrNode->volunteer.status = "Available";
+                                }
+                                volunteerCurrNode = volunteerCurrNode->next;
+                            } while (volunteerCurrNode != volunteerTail->next);
                         }
                         volunteerCurr = volunteerCurr->next;
                     } while (volunteerCurr != volunteerAssignmentsTail->next);
-                    updateVolunteerAssignment();
                 }
+                updateVolunteer();
+                updateVolunteerAssignment();
 
                 curr->order.status = "Resolved";
                 cout << "Vehicle with ID " << vehicleID << " free from transport order.\n";
@@ -1164,7 +1200,7 @@ public:
 
     bool validateStatus(int scheduleID)
     {
-        TransportOrderNode* curr = orderTail->next;
+        TransportOrderNode *curr = orderTail->next;
         do
         {
             if (curr->order.orderID == scheduleID && curr->order.status == "Resolved")
@@ -1176,4 +1212,3 @@ public:
         return false;
     }
 };
-
