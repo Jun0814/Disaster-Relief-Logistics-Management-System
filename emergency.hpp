@@ -2,7 +2,7 @@
 #include <string>
 #include <fstream>
 #include <sstream>
-#include <direct.h> // For _mkdir
+#include <direct.h>
 #include "structures.hpp"
 #include "supply.hpp"
 
@@ -85,68 +85,68 @@ public:
     }
 
     void insert(string location, string type, int urgency, string date) {
-            EmergencyRequestNode* newNode = new EmergencyRequestNode;
-            newNode->request = EmergencyRequest{nextID++, location, type, urgency, "Pending", date};
-            newNode->next = nullptr;
+        EmergencyRequestNode* newNode = new EmergencyRequestNode;
+        newNode->request = EmergencyRequest{nextID++, location, type, urgency, "Pending", date};
+        newNode->next = nullptr;
 
-            if (!head || urgency > head->request.urgency) {
-                newNode->next = head;
-                head = newNode;
-            } else {
-                EmergencyRequestNode* curr = head;
-                while (curr->next && curr->next->request.urgency >= urgency) {
-                    curr = curr->next;
+        if (!head || urgency > head->request.urgency) {
+            newNode->next = head;
+            head = newNode;
+        } else {
+            EmergencyRequestNode* curr = head;
+            while (curr->next && curr->next->request.urgency >= urgency) {
+                curr = curr->next;
+            }
+            newNode->next = curr->next;
+            curr->next = newNode;
+        }
+
+        cout << "Logged Emergency Request ID: " << newNode->request.requestID << "\n";
+
+        // Request supplies
+        char more = 'y';
+        cout << "Request supplies for this emergency? (y/n): ";
+        cin >> more;
+        cin.ignore();
+        while (more == 'y' || more == 'Y') {
+            int supplyID, quantity;
+            bool validSupply = false;
+            do {
+                sm.viewSupplies();
+                cout << "Enter Supply ID: ";
+                cin >> supplyID;
+                if (sm.findSupplyByID(supplyID)) {
+                    validSupply = true;
+                } else {
+                    cout << "Error: Supply ID " << supplyID << " does not exist. Please enter a valid Supply ID.\n";
                 }
-                newNode->next = curr->next;
-                curr->next = newNode;
-            }
-
-            cout << "Logged Emergency Request ID: " << newNode->request.requestID << "\n";
-
-            // Request supplies
-            char more = 'y';
-            cout << "Request supplies for this emergency? (y/n): ";
-            cin >> more;
-            cin.ignore(); // Clear newline
-            while (more == 'y' || more == 'Y') {
-                int supplyID, quantity;
-                bool validSupply = false;
-                do {
-                    sm.viewSupplies();
-                    cout << "Enter Supply ID: ";
-                    cin >> supplyID;
-                    if (sm.findSupplyByID(supplyID)) {
-                        validSupply = true;
-                    } else {
-                        cout << "Error: Supply ID " << supplyID << " does not exist. Please enter a valid Supply ID.\n";
-                    }
-                } while (!validSupply);
-                cout << "Enter Quantity: ";
-                cin >> quantity;
-                saveSupplyRequest(supplyID, newNode->request.requestID, quantity);
-                cout << "Add more supplies? (y/n): ";
-                cin >> more;
-                cin.ignore();
-            }
-
-            // Request volunteers
-            cout << "Request volunteers for this emergency? (y/n): ";
+            } while (!validSupply);
+            cout << "Enter Quantity: ";
+            cin >> quantity;
+            saveSupplyRequest(supplyID, newNode->request.requestID, quantity);
+            cout << "Add more supplies? (y/n): ";
             cin >> more;
             cin.ignore();
-            if (more == 'y' || more == 'Y') {
-                int quantity;
-                string comment;
-                cout << "Enter Number of Volunteers Needed: ";
-                cin >> quantity;
-                cin.ignore();
-                cout << "Enter Comment for Volunteer Request: ";
-                getline(cin, comment);
-                saveVolunteerRequest(newNode->request.requestID, quantity, comment);
-            }
-
-            saveToFile();
-            viewAll();
         }
+
+        // Request volunteers
+        cout << "Request volunteers for this emergency? (y/n): ";
+        cin >> more;
+        cin.ignore();
+        if (more == 'y' || more == 'Y') {
+            int quantity;
+            string comment;
+            cout << "Enter Number of Volunteers Needed: ";
+            cin >> quantity;
+            cin.ignore();
+            cout << "Enter Comment for Volunteer Request: ";
+            getline(cin, comment);
+            saveVolunteerRequest(newNode->request.requestID, quantity, comment);
+        }
+
+        saveToFile();
+        viewAll();
+    }
 
     void requestEmergencyItems() {
         if (!head) {
@@ -230,7 +230,7 @@ public:
             saveVolunteerRequest(curr->request.requestID, quantity, comment);
         }
 
-        curr->request.status = "Assigned";
+        curr->request.status = "Pending";
         cout << "Items requested.\n";
         saveToFile();
     }
