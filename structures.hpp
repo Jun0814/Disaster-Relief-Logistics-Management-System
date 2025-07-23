@@ -8,8 +8,8 @@
 using namespace std;
 
 // Global file names
-string fileSupplyBox = "./database/SupplyBox.csv";
-string fileVolunteer = "./database/Volunteer.csv";
+string fileSupplyBox = "database/SupplyBox.csv";
+string fileVolunteer = "database/Volunteer.csv";
 string fileEmergencyRequest = "./database/EmergencyRequest.csv";
 string fileSupplyRequest = "./database/SupplyRequest.csv";
 string fileVolunteerRequest = "./database/VolunteerRequest.csv";
