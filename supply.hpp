@@ -278,4 +278,74 @@ public:
         }
         return nullptr;
     }
+
+    void updateEmergencyRequestStatusIfReady(int requestID) {
+        bool volunteerAssigned = false;
+        ifstream vreqFile(fileVolunteerRequest);
+        string line;
+        getline(vreqFile, line);
+        while (getline(vreqFile, line)) {
+            stringstream ss(line);
+            string vReqID, reqID, qty, comment, date, status;
+            getline(ss, vReqID, ',');
+            getline(ss, reqID, ',');
+            getline(ss, qty, ',');
+            getline(ss, comment, ',');
+            getline(ss, date, ',');
+            getline(ss, status, ',');
+            if (stoi(reqID) == requestID && status == "Assigned") {
+                volunteerAssigned = true;
+                break;
+            }
+        }
+        vreqFile.close();
+
+        bool supplyAssigned = false;
+        ifstream sreqFile(fileSupplyRequest);
+        getline(sreqFile, line);
+        while (getline(sreqFile, line)) {
+            stringstream ss(line);
+            string sReqID, supplyID, reqID, qty, date, status;
+            getline(ss, sReqID, ',');
+            getline(ss, supplyID, ',');
+            getline(ss, reqID, ',');
+            getline(ss, qty, ',');
+            getline(ss, date, ',');
+            getline(ss, status, ',');
+            if (stoi(reqID) == requestID && status == "Assigned") {
+                supplyAssigned = true;
+                break;
+            }
+        }
+        sreqFile.close();
+
+        if (volunteerAssigned && supplyAssigned) {
+            const int MAX_REQS = 1000;
+            string allEmerg[MAX_REQS];
+            int count = 0;
+            ifstream ereqFile(fileEmergencyRequest);
+            getline(ereqFile, line); // header
+            allEmerg[count++] = line;
+            while (getline(ereqFile, line) && count < MAX_REQS) {
+                stringstream ss(line);
+                string eReqID, location, type, urgency, status, date;
+                getline(ss, eReqID, ',');
+                getline(ss, location, ',');
+                getline(ss, type, ',');
+                getline(ss, urgency, ',');
+                getline(ss, status, ',');
+                getline(ss, date, ',');
+                if (stoi(eReqID) == requestID && status == "Pending") {
+                    allEmerg[count++] = eReqID + "," + location + "," + type + "," + urgency + ",Assigned," + date;
+                } else {
+                    allEmerg[count++] = line;
+                }
+            }
+            ereqFile.close();
+
+            ofstream outEreq(fileEmergencyRequest);
+            for (int i = 0; i < count; ++i) outEreq << allEmerg[i] << "\n";
+            outEreq.close();
+        }
+    }
 };

@@ -87,6 +87,7 @@ int main()
                     cout << "Enter Supply Request ID to assign: ";
                     cin >> reqID;
                     sm.assignSupplyToRequest(reqID);
+                    sm.updateEmergencyRequestStatusIfReady(reqID);
                     break;
                 }
                 case 0:
@@ -148,6 +149,7 @@ int main()
                     cout << "Enter Quantity: ";
                     cin >> quantity;
                     vm.deployVolunteersToRequest(volunteerRequestID, skill, quantity);
+                    vm.updateEmergencyRequestStatusIfReady(volunteerRequestID);
                     break;
                 }
                 case 3:
