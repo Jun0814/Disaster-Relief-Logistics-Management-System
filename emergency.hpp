@@ -2,7 +2,7 @@
 #include <string>
 #include <fstream>
 #include <sstream>
-#include <direct.h> // For _mkdir
+#include <direct.h>
 #include "structures.hpp"
 #include "supply.hpp"
 
@@ -84,7 +84,7 @@ public:
         }
     }
 
-void insert(string location, string type, int urgency, string date) {
+    void insert(string location, string type, int urgency, string date) {
         EmergencyRequestNode* newNode = new EmergencyRequestNode;
         newNode->request = EmergencyRequest{nextID++, location, type, urgency, "Pending", date};
         newNode->next = nullptr;
@@ -107,7 +107,7 @@ void insert(string location, string type, int urgency, string date) {
         char more = 'y';
         cout << "Request supplies for this emergency? (y/n): ";
         cin >> more;
-        cin.ignore(); // Clear newline
+        cin.ignore();
         while (more == 'y' || more == 'Y') {
             int supplyID, quantity;
             bool validSupply = false;
@@ -230,7 +230,7 @@ void insert(string location, string type, int urgency, string date) {
             saveVolunteerRequest(curr->request.requestID, quantity, comment);
         }
 
-        curr->request.status = "Assigned";
+        curr->request.status = "Pending";
         cout << "Items requested.\n";
         saveToFile();
     }
