@@ -63,7 +63,7 @@ int main()
                     getline(cin, type);
                     cout << "Enter Quantity: ";
                     cin >> qty;
-                    sm.addSupplyByType(type, qty);
+                    sm.addSupply(type, qty);
                     break;
                 }
                 case 2:
@@ -87,6 +87,7 @@ int main()
                     cout << "Enter Supply Request ID to assign: ";
                     cin >> reqID;
                     sm.assignSupplyToRequest(reqID);
+                    sm.updateEmergencyRequestStatusIfReady(reqID);
                     break;
                 }
                 case 0:
@@ -108,7 +109,9 @@ int main()
                 cout << "\n-- Volunteer Operations Officer Menu --" << endl;
                 cout << "1. Register Volunteer" << endl;
                 cout << "2. Deploy Volunteer to Field" << endl;
-                cout << "3. View Registered Volunteers" << endl;
+                cout << "3. View Available Volunteers" << endl;
+                cout << "4. View Pending Volunteer Requests" << endl;
+                cout << "5. View All Volunteers" << endl;
                 cout << "0. Back to Main Menu" << endl;
                 cout << "Enter choice: ";
 
@@ -135,10 +138,28 @@ int main()
                     break;
                 }
                 case 2:
-                    vm.deployVolunteer();
+                {
+                    int volunteerRequestID;
+                    string skill;
+                    int quantity;
+                    cout << "Enter Volunteer Request ID: ";
+                    cin >> volunteerRequestID;
+                    cout << "Enter Skill: ";
+                    cin >> skill;
+                    cout << "Enter Quantity: ";
+                    cin >> quantity;
+                    vm.deployVolunteersToRequest(volunteerRequestID, skill, quantity);
+                    vm.updateEmergencyRequestStatusIfReady(volunteerRequestID);
                     break;
+                }
                 case 3:
                     vm.viewVolunteers();
+                    break;
+                case 4:
+                    vm.viewPendingVolunteerRequests();
+                    break;
+                case 5:
+                    vm.viewAllVolunteers();
                     break;
                 case 0:
                     cout << "Returning to Main Menu...\n";

@@ -2,6 +2,7 @@
 #include <string>
 #include <fstream>
 #include "structures.hpp"
+
 using namespace std;
 
 class TransportScheduler
@@ -427,7 +428,7 @@ public:
         {
             istringstream iss(line);
             string supplyIDStr, type, quantityStr;
-            if (getline(iss, supplyIDStr, ',') && getline(iss, type) && getline(iss, quantityStr))
+            if (getline(iss, supplyIDStr, ',') && getline(iss, type, ',') && getline(iss, quantityStr))
             {
                 try
                 {
@@ -473,13 +474,13 @@ public:
         while (getline(file, line))
         {
             istringstream iss(line);
-            string idStr, name, contact, skill;
-            if (getline(iss, idStr, ',') && getline(iss, name, ',') && getline(iss, contact, ',') && getline(iss, skill))
+            string idStr, name, contact, skill, status;
+            if (getline(iss, idStr, ',') && getline(iss, name, ',') && getline(iss, contact, ',') && getline(iss, skill, ',') && getline(iss, status))
             {
                 try
                 {
                     int id = stoi(idStr);
-                    VolunteerNode *newNode = new VolunteerNode{id, name, contact, skill, nullptr};
+                    VolunteerNode *newNode = new VolunteerNode{id, name, contact, skill, status, nullptr};
                     if (!volunteerTail)
                     {
                         volunteerTail = newNode;
@@ -728,14 +729,14 @@ public:
              << emergencyRequestID
              << " --"
              << endl;
-        cout << "---------------------------------------------------------------------------------\n";
+        cout << "--------------------------------------------------------------------------------------------\n";
         cout << "| " << left << setw(18) << "Supply Request ID"
              << "| " << setw(10) << "Supply ID"
              << "| " << setw(11) << "Request ID"
              << "| " << setw(9) << "Quantity"
-             << "| " << setw(10) << "Date Time"
+             << "| " << setw(21) << "Date Time"
              << "| " << setw(10) << "Status" << "|\n";
-        cout << "---------------------------------------------------------------------------------\n";
+        cout << "--------------------------------------------------------------------------------------------\n";
 
         SupplyRequestNode *curr = requestTail->next;
         do
@@ -746,13 +747,13 @@ public:
                      << "| " << setw(10) << curr->request.supplyID
                      << "| " << setw(11) << curr->request.requestID
                      << "| " << setw(9) << curr->request.quantity
-                     << "| " << setw(10) << curr->request.date
+                     << "| " << setw(21) << curr->request.date
                      << "| " << setw(10) << curr->request.status << "|\n";
             }
             curr = curr->next;
         } while (curr != requestTail->next);
 
-        cout << "---------------------------------------------------------------------------------\n";
+        cout << "--------------------------------------------------------------------------------------------\n";
     }
 
     void viewVolunteerAssignments(int emergencyRequestID)
@@ -767,14 +768,14 @@ public:
              << "for Emergency Request ID: "
              << emergencyRequestID
              << " --\n";
-        cout << "--------------------------------------------------------------------------------------\n";
+        cout << "-------------------------------------------------------------------------------------------------\n";
         cout << "| " << left << setw(14) << "Assignment ID"
              << "| " << setw(13) << "Volunteer ID"
              << "| " << setw(15) << "Volunteer Name"
              << "| " << setw(11) << "Request ID"
-             << "| " << setw(10) << "Date"
+             << "| " << setw(21) << "Date"
              << "| " << setw(10) << "Status" << "|\n";
-        cout << "--------------------------------------------------------------------------------------\n";
+        cout << "-------------------------------------------------------------------------------------------------\n";
 
         VolunteerAssignmentNode *curr = volunteerAssignmentsTail->next;
         do
@@ -797,13 +798,13 @@ public:
                      << "| " << setw(13) << curr->assignment.volunteerID
                      << "| " << setw(15) << volunteerName
                      << "| " << setw(11) << curr->assignment.requestID
-                     << "| " << setw(10) << curr->assignment.date
+                     << "| " << setw(21) << curr->assignment.date
                      << "| " << setw(10) << curr->assignment.status << "|\n";
             }
             curr = curr->next;
         } while (curr && curr != volunteerAssignmentsTail->next);
 
-        cout << "--------------------------------------------------------------------------------------\n";
+        cout << "-------------------------------------------------------------------------------------------------\n";
     }
 
     void addTransportOrderIntoFile(const TransportOrder &order)
@@ -852,6 +853,31 @@ public:
             } while (currWrite != requestTail->next);
         }
         supplyFile.close();
+    }
+
+    void updateVolunteer()
+    {
+        ofstream volunteerFile(fileVolunteer);
+        if (!volunteerFile)
+        {
+            cerr << "Error opening file: volunteer.csv" << endl;
+            return;
+        }
+        volunteerFile << "Volunteer ID,Name,Contact,Skill,Status\n";
+        if (volunteerTail)
+        {
+            VolunteerNode *currWrite = volunteerTail->next;
+            do
+            {
+                volunteerFile << currWrite->volunteer.volunteerID << ","
+                              << currWrite->volunteer.name << ","
+                              << currWrite->volunteer.contact << ","
+                              << currWrite->volunteer.skill << ","
+                              << currWrite->volunteer.status << "\n";
+                currWrite = currWrite->next;
+            } while (currWrite != volunteerTail->next);
+        }
+        volunteerFile.close();
     }
 
     void updateVolunteerAssignment()
@@ -1135,6 +1161,7 @@ public:
                     } while (supplyCurr != requestTail->next);
                     updateSupplyRequest();
                 }
+
                 if (curr->order.type == "Volunteer" || curr->order.type == "Both")
                 {
                     VolunteerAssignmentNode *volunteerCurr = volunteerAssignmentsTail->next;
@@ -1143,11 +1170,21 @@ public:
                         if (volunteerCurr->assignment.requestID == emergencyRequestID)
                         {
                             volunteerCurr->assignment.status = "Resolved";
+                            VolunteerNode *volunteerCurrNode = volunteerTail->next;
+                            do
+                            {
+                                if (volunteerCurrNode->volunteer.volunteerID == volunteerCurr->assignment.volunteerID)
+                                {
+                                    volunteerCurrNode->volunteer.status = "Available";
+                                }
+                                volunteerCurrNode = volunteerCurrNode->next;
+                            } while (volunteerCurrNode != volunteerTail->next);
                         }
                         volunteerCurr = volunteerCurr->next;
                     } while (volunteerCurr != volunteerAssignmentsTail->next);
-                    updateVolunteerAssignment();
                 }
+                updateVolunteer();
+                updateVolunteerAssignment();
 
                 curr->order.status = "Resolved";
                 cout << "Vehicle with ID " << vehicleID << " free from transport order.\n";

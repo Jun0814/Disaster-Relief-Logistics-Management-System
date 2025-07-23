@@ -18,10 +18,9 @@ string fileVehicle = "database/Vehicle.csv";
 string fileTransportOrder = "database/TransportOrder.csv";
 
 // Structure definitions
-struct Supply
-{
+struct Supply {
     int supplyID;
-    string type;
+    std::string type;
     int quantity;
 };
 
@@ -31,6 +30,7 @@ struct Volunteer
     string name;
     string contact;
     string skill;
+    string status;
 };
 
 struct EmergencyRequest
@@ -72,10 +72,14 @@ struct VolunteerAssignment
     string status;
 };
 
-struct SupplyNode
-{
+struct SupplyNode {
     Supply supply;
-    SupplyNode *next;
+    SupplyNode* next;
+};
+
+struct SupplyStackNode {
+    Supply supply;
+    SupplyStackNode* next;
 };
 
 struct Vehicle

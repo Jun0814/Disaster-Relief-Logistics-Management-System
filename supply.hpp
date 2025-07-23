@@ -9,35 +9,42 @@ using namespace std;
 
 class SupplyManager {
 private:
-    SupplyNode* front;
-    SupplyNode* rear;
+    SupplyStackNode* top;
     int nextID;
 
     void loadFromCSV() {
-        front = rear = nullptr;
+        top = nullptr;
         nextID = 1;
         ifstream file(fileSupplyBox);
         if (!file.is_open()) return;
         string line;
         getline(file, line);
-        while (getline(file, line)) {
+
+        // Read all supplies into a temp array
+        Supply supplies[1000];
+        int count = 0;
+        while (getline(file, line) && count < 1000) {
             stringstream ss(line);
             string id, type, quantity;
             getline(ss, id, ',');
             getline(ss, type, ',');
             getline(ss, quantity, ',');
-            Supply supply;
-            supply.supplyID = stoi(id);
-            supply.type = type;
-            supply.quantity = stoi(quantity);
-            SupplyNode* newNode = new SupplyNode{ supply, nullptr };
-            if (!rear) front = rear = newNode;
-            else { rear->next = newNode; rear = newNode; }
-            if (supply.supplyID >= nextID) nextID = supply.supplyID + 1;
+            supplies[count].supplyID = stoi(id);
+            supplies[count].type = type;
+            supplies[count].quantity = stoi(quantity);
+            if (supplies[count].supplyID >= nextID) nextID = supplies[count].supplyID + 1;
+            count++;
         }
         file.close();
+
+        // Push onto stack in reverse order (so first row is top)
+        for (int i = count - 1; i >= 0; --i) {
+            SupplyStackNode* node = new SupplyStackNode{ supplies[i], top };
+            top = node;
+        }
     }
 
+    // Save from top to bottom
     void saveToCSV() {
         ofstream file(fileSupplyBox);
         if (!file.is_open()) {
@@ -45,7 +52,7 @@ private:
             return;
         }
         file << "supplyID,type,quantity\n";
-        SupplyNode* curr = front;
+        SupplyStackNode* curr = top;
         while (curr) {
             file << curr->supply.supplyID << "," << curr->supply.type << "," << curr->supply.quantity << "\n";
             curr = curr->next;
@@ -53,8 +60,8 @@ private:
         file.close();
     }
 
-    SupplyNode* findSupplyByType(const string& type) {
-        SupplyNode* curr = front;
+    SupplyStackNode* findSupplyByType(const string& type) {
+        SupplyStackNode* curr = top;
         while (curr) {
             if (curr->supply.type == type) return curr;
             curr = curr->next;
@@ -62,9 +69,9 @@ private:
         return nullptr;
     }
 
-    SupplyNode* findPrevSupplyByType(const string& type) {
-        SupplyNode* curr = front;
-        SupplyNode* prev = nullptr;
+    SupplyStackNode* findPrevSupplyByType(const string& type) {
+        SupplyStackNode* curr = top;
+        SupplyStackNode* prev = nullptr;
         while (curr) {
             if (curr->supply.type == type) return prev;
             prev = curr;
@@ -83,23 +90,22 @@ private:
 //     }
   
 public:
-    SupplyManager() : front(nullptr), rear(nullptr), nextID(1) { loadFromCSV(); }
+    SupplyManager() : top(nullptr), nextID(1) { loadFromCSV(); }
     ~SupplyManager() {
         saveToCSV();
-        while (front) { SupplyNode* temp = front; front = front->next; delete temp; }
+        while (top) { SupplyStackNode* temp = top; top = top->next; delete temp; }
     }
 
-    // 1. Add or update supply by type
-    void addSupplyByType(const string& type, int quantity) {
-        SupplyNode* node = findSupplyByType(type);
+    // 1. Add supply (push)
+    void addSupply(const string& type, int quantity) {
+        SupplyStackNode* node = findSupplyByType(type);
         if (node) {
             node->supply.quantity += quantity;
-            cout << "Updated supply: " << type << " now has quantity " << node->supply.quantity << "\n";
+            cout << "Updated supply: " << type << " (ID: " << node->supply.supplyID << ") now has quantity " << node->supply.quantity << "\n";
         } else {
             Supply supply{ nextID++, type, quantity };
-            SupplyNode* newNode = new SupplyNode{ supply, nullptr };
-            if (!rear) front = rear = newNode;
-            else { rear->next = newNode; rear = newNode; }
+            SupplyStackNode* newNode = new SupplyStackNode{ supply, top };
+            top = newNode;
             cout << "Added new supply: " << type << " (ID: " << supply.supplyID << ") with quantity " << quantity << "\n";
         }
         saveToCSV();
@@ -107,16 +113,16 @@ public:
 
     // 2. Delete a supply type
     void deleteSupplyType(const string& type) {
-        SupplyNode* prev = findPrevSupplyByType(type);
-        SupplyNode* toDelete = nullptr;
-        if (!prev && front && front->supply.type == type) {
-            toDelete = front;
-            front = front->next;
-            if (!front) rear = nullptr;
+        SupplyStackNode* prev = findPrevSupplyByType(type);
+        SupplyStackNode* toDelete = nullptr;
+        if (!prev && top && top->supply.type == type) {
+            toDelete = top;
+            top = top->next;
+            if (!top) top = nullptr;
         } else if (prev && prev->next) {
             toDelete = prev->next;
             prev->next = toDelete->next;
-            if (toDelete == rear) rear = prev;
+            if (toDelete == top) top = prev;
         }
         if (toDelete) {
             cout << "Deleted supply type: " << type << "\n";
@@ -129,16 +135,16 @@ public:
 
     // 3. View all supplies
     void viewSupplies() {
-        if (!front) { cout << "No supplies in inventory.\n"; return; }
-        cout << "\n--- Current Supplies ---\n";
+        if (!top) { cout << "No supplies found.\n"; return; }
+        cout << "\n------------ Supply ---------------\n";
         cout << "ID\tType\t\tQuantity\n";
-        cout << "-----------------------------\n";
-        SupplyNode* curr = front;
+        cout << "-----------------------------------\n";
+        SupplyStackNode* curr = top;
         while (curr) {
             cout << curr->supply.supplyID << "\t" << curr->supply.type << "\t\t" << curr->supply.quantity << "\n";
             curr = curr->next;
         }
-        cout << "-----------------------------\n";
+        cout << "-----------------------------------\n";
     }
 
     // 4. View pending supply requests
@@ -226,7 +232,7 @@ public:
         }
 
         // Find supply
-        SupplyNode* node = findSupplyByID(supplyID);
+        SupplyStackNode* node = findSupplyByID(supplyID);
         if (!node || node->supply.quantity < quantityNeeded) {
             cout << "Not enough supply available for this request.\n";
             delete[] lines;
@@ -261,9 +267,9 @@ public:
         delete[] lines;
     }
     
-    SupplyNode *findSupplyByID(int supplyID)
+    SupplyStackNode *findSupplyByID(int supplyID)
     {
-        SupplyNode *curr = front;
+        SupplyStackNode *curr = top;
         while (curr)
         {
             if (curr->supply.supplyID == supplyID)
@@ -271,5 +277,75 @@ public:
             curr = curr->next;
         }
         return nullptr;
+    }
+
+    void updateEmergencyRequestStatusIfReady(int requestID) {
+        bool volunteerAssigned = false;
+        ifstream vreqFile(fileVolunteerRequest);
+        string line;
+        getline(vreqFile, line);
+        while (getline(vreqFile, line)) {
+            stringstream ss(line);
+            string vReqID, reqID, qty, comment, date, status;
+            getline(ss, vReqID, ',');
+            getline(ss, reqID, ',');
+            getline(ss, qty, ',');
+            getline(ss, comment, ',');
+            getline(ss, date, ',');
+            getline(ss, status, ',');
+            if (stoi(reqID) == requestID && status == "Assigned") {
+                volunteerAssigned = true;
+                break;
+            }
+        }
+        vreqFile.close();
+
+        bool supplyAssigned = false;
+        ifstream sreqFile(fileSupplyRequest);
+        getline(sreqFile, line);
+        while (getline(sreqFile, line)) {
+            stringstream ss(line);
+            string sReqID, supplyID, reqID, qty, date, status;
+            getline(ss, sReqID, ',');
+            getline(ss, supplyID, ',');
+            getline(ss, reqID, ',');
+            getline(ss, qty, ',');
+            getline(ss, date, ',');
+            getline(ss, status, ',');
+            if (stoi(reqID) == requestID && status == "Assigned") {
+                supplyAssigned = true;
+                break;
+            }
+        }
+        sreqFile.close();
+
+        if (volunteerAssigned && supplyAssigned) {
+            const int MAX_REQS = 1000;
+            string allEmerg[MAX_REQS];
+            int count = 0;
+            ifstream ereqFile(fileEmergencyRequest);
+            getline(ereqFile, line); // header
+            allEmerg[count++] = line;
+            while (getline(ereqFile, line) && count < MAX_REQS) {
+                stringstream ss(line);
+                string eReqID, location, type, urgency, status, date;
+                getline(ss, eReqID, ',');
+                getline(ss, location, ',');
+                getline(ss, type, ',');
+                getline(ss, urgency, ',');
+                getline(ss, status, ',');
+                getline(ss, date, ',');
+                if (stoi(eReqID) == requestID && status == "Pending") {
+                    allEmerg[count++] = eReqID + "," + location + "," + type + "," + urgency + ",Assigned," + date;
+                } else {
+                    allEmerg[count++] = line;
+                }
+            }
+            ereqFile.close();
+
+            ofstream outEreq(fileEmergencyRequest);
+            for (int i = 0; i < count; ++i) outEreq << allEmerg[i] << "\n";
+            outEreq.close();
+        }
     }
 };
