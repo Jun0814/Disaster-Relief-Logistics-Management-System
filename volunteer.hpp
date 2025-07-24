@@ -179,35 +179,6 @@ public:
         file.close();
     }
 
-    // Deploy Volunteer to Field
-    void deployVolunteer()
-    {
-        if (front == nullptr)
-        {
-            cout << "No volunteers available for deployment.\n";
-            return;
-        }
-
-        Volunteer v = front->data;
-        VNode* temp = front;
-        front = front->next;
-
-        if (front == nullptr)
-            rear = nullptr;
-
-        delete temp;
-
-        cout << "Volunteer deployed successfully!\n";
-        cout << "Deployed Volunteer Details:\n";
-        cout << "ID: " << v.volunteerID << endl;
-        cout << "Name: " << v.name << endl;
-        cout << "Contact: " << v.contact << endl;
-        cout << "Skill: " << v.skill << endl;
-        cout << "Deployment Time: " << getCurrentDateTime() << endl;
-
-        saveVolunteersToCSV();
-    }
-
     // View Registered Volunteers
     void viewVolunteers()
     {
