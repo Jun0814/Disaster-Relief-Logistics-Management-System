@@ -12,6 +12,22 @@ private:
     SupplyStackNode* top;
     int nextID;
 
+    // Helper to get supply type by ID from SupplyBox.csv
+    string getSupplyTypeByID(const string& supplyID) {
+        ifstream file(fileSupplyBox);
+        string line;
+        getline(file, line); // skip header
+        while (getline(file, line)) {
+            stringstream ss(line);
+            string id, type, quantity;
+            getline(ss, id, ',');
+            getline(ss, type, ',');
+            getline(ss, quantity, ',');
+            if (id == supplyID) return type;
+        }
+        return "unknown";
+    }
+
     void loadFromCSV() {
         top = nullptr;
         nextID = 1;
@@ -171,7 +187,7 @@ public:
             getline(ss, date, ',');
             getline(ss, status, ',');
             if (status == "Pending") {
-                string type = supplyID == "1" ? "food" : supplyID == "2" ? "beverage" : supplyID == "3" ? "clothes" : "other";
+                string type = getSupplyTypeByID(supplyID);
                 cout << left
                      << setw(8)  << reqID
                      << setw(10) << supplyID
