@@ -359,6 +359,8 @@ public:
     }
 
     void updateEmergencyRequestStatusIfReady(int requestID) {
+        // Check if there are any volunteer requests for this emergency
+        bool hasVolunteerRequest = false;
         bool volunteerAssigned = false;
         ifstream vreqFile(fileVolunteerRequest);
         string line;
@@ -372,13 +374,17 @@ public:
             getline(ss, comment, ',');
             getline(ss, date, ',');
             getline(ss, status, ',');
-            if (stoi(reqID) == requestID && status == "Assigned") {
-                volunteerAssigned = true;
-                break;
+            if (stoi(reqID) == requestID) {
+                hasVolunteerRequest = true;
+                if (status == "Assigned") {
+                    volunteerAssigned = true;
+                }
             }
         }
         vreqFile.close();
 
+        // Check if there are any supply requests for this emergency
+        bool hasSupplyRequest = false;
         bool supplyAssigned = false;
         ifstream sreqFile(fileSupplyRequest);
         getline(sreqFile, line);
@@ -391,14 +397,26 @@ public:
             getline(ss, qty, ',');
             getline(ss, date, ',');
             getline(ss, status, ',');
-            if (stoi(reqID) == requestID && status == "Assigned") {
-                supplyAssigned = true;
-                break;
+            if (stoi(reqID) == requestID) {
+                hasSupplyRequest = true;
+                if (status == "Assigned") {
+                    supplyAssigned = true;
+                }
             }
         }
         sreqFile.close();
 
-        if (volunteerAssigned && supplyAssigned) {
+        // Logic: If both exist, require both assigned. If only one exists, require only that one assigned.
+        bool ready = false;
+        if (hasVolunteerRequest && hasSupplyRequest) {
+            ready = volunteerAssigned && supplyAssigned;
+        } else if (hasVolunteerRequest) {
+            ready = volunteerAssigned;
+        } else if (hasSupplyRequest) {
+            ready = supplyAssigned;
+        }
+
+        if (ready) {
             const int MAX_REQS = 1000;
             string allEmerg[MAX_REQS];
             int count = 0;
@@ -426,5 +444,24 @@ public:
             for (int i = 0; i < count; ++i) outEreq << allEmerg[i] << "\n";
             outEreq.close();
         }
+    }
+
+    // Get Emergency Request ID from Volunteer Request ID
+    int getEmergencyRequestIDFromVolunteerRequestID(int volunteerRequestID) {
+        ifstream vreqFile(fileVolunteerRequest);
+        string line;
+        getline(vreqFile, line); // skip header
+        while (getline(vreqFile, line)) {
+            stringstream ss(line);
+            string vReqID, reqID, qty, comment, date, status;
+            getline(ss, vReqID, ',');
+            getline(ss, reqID, ',');
+            if (stoi(vReqID) == volunteerRequestID) {
+                vreqFile.close();
+                return stoi(reqID);
+            }
+        }
+        vreqFile.close();
+        return -1;
     }
 };
