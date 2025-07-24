@@ -179,35 +179,6 @@ public:
         file.close();
     }
 
-    // Deploy Volunteer to Field
-    void deployVolunteer()
-    {
-        if (front == nullptr)
-        {
-            cout << "No volunteers available for deployment.\n";
-            return;
-        }
-
-        Volunteer v = front->data;
-        VNode* temp = front;
-        front = front->next;
-
-        if (front == nullptr)
-            rear = nullptr;
-
-        delete temp;
-
-        cout << "Volunteer deployed successfully!\n";
-        cout << "Deployed Volunteer Details:\n";
-        cout << "ID: " << v.volunteerID << endl;
-        cout << "Name: " << v.name << endl;
-        cout << "Contact: " << v.contact << endl;
-        cout << "Skill: " << v.skill << endl;
-        cout << "Deployment Time: " << getCurrentDateTime() << endl;
-
-        saveVolunteersToCSV();
-    }
-
     // View Registered Volunteers
     void viewVolunteers()
     {
@@ -385,5 +356,112 @@ public:
         reqOut.close();
 
         saveVolunteersToCSV();
+    }
+
+    void updateEmergencyRequestStatusIfReady(int requestID) {
+        // Check if there are any volunteer requests for this emergency
+        bool hasVolunteerRequest = false;
+        bool volunteerAssigned = false;
+        ifstream vreqFile(fileVolunteerRequest);
+        string line;
+        getline(vreqFile, line);
+        while (getline(vreqFile, line)) {
+            stringstream ss(line);
+            string vReqID, reqID, qty, comment, date, status;
+            getline(ss, vReqID, ',');
+            getline(ss, reqID, ',');
+            getline(ss, qty, ',');
+            getline(ss, comment, ',');
+            getline(ss, date, ',');
+            getline(ss, status, ',');
+            if (stoi(reqID) == requestID) {
+                hasVolunteerRequest = true;
+                if (status == "Assigned") {
+                    volunteerAssigned = true;
+                }
+            }
+        }
+        vreqFile.close();
+
+        // Check if there are any supply requests for this emergency
+        bool hasSupplyRequest = false;
+        bool supplyAssigned = false;
+        ifstream sreqFile(fileSupplyRequest);
+        getline(sreqFile, line);
+        while (getline(sreqFile, line)) {
+            stringstream ss(line);
+            string sReqID, supplyID, reqID, qty, date, status;
+            getline(ss, sReqID, ',');
+            getline(ss, supplyID, ',');
+            getline(ss, reqID, ',');
+            getline(ss, qty, ',');
+            getline(ss, date, ',');
+            getline(ss, status, ',');
+            if (stoi(reqID) == requestID) {
+                hasSupplyRequest = true;
+                if (status == "Assigned") {
+                    supplyAssigned = true;
+                }
+            }
+        }
+        sreqFile.close();
+
+        // Logic: If both exist, require both assigned. If only one exists, require only that one assigned.
+        bool ready = false;
+        if (hasVolunteerRequest && hasSupplyRequest) {
+            ready = volunteerAssigned && supplyAssigned;
+        } else if (hasVolunteerRequest) {
+            ready = volunteerAssigned;
+        } else if (hasSupplyRequest) {
+            ready = supplyAssigned;
+        }
+
+        if (ready) {
+            const int MAX_REQS = 1000;
+            string allEmerg[MAX_REQS];
+            int count = 0;
+            ifstream ereqFile(fileEmergencyRequest);
+            getline(ereqFile, line); // header
+            allEmerg[count++] = line;
+            while (getline(ereqFile, line) && count < MAX_REQS) {
+                stringstream ss(line);
+                string eReqID, location, type, urgency, status, date;
+                getline(ss, eReqID, ',');
+                getline(ss, location, ',');
+                getline(ss, type, ',');
+                getline(ss, urgency, ',');
+                getline(ss, status, ',');
+                getline(ss, date, ',');
+                if (stoi(eReqID) == requestID && status == "Pending") {
+                    allEmerg[count++] = eReqID + "," + location + "," + type + "," + urgency + ",Assigned," + date;
+                } else {
+                    allEmerg[count++] = line;
+                }
+            }
+            ereqFile.close();
+
+            ofstream outEreq(fileEmergencyRequest);
+            for (int i = 0; i < count; ++i) outEreq << allEmerg[i] << "\n";
+            outEreq.close();
+        }
+    }
+
+    // Get Emergency Request ID from Volunteer Request ID
+    int getEmergencyRequestIDFromVolunteerRequestID(int volunteerRequestID) {
+        ifstream vreqFile(fileVolunteerRequest);
+        string line;
+        getline(vreqFile, line); // skip header
+        while (getline(vreqFile, line)) {
+            stringstream ss(line);
+            string vReqID, reqID, qty, comment, date, status;
+            getline(ss, vReqID, ',');
+            getline(ss, reqID, ',');
+            if (stoi(vReqID) == volunteerRequestID) {
+                vreqFile.close();
+                return stoi(reqID);
+            }
+        }
+        vreqFile.close();
+        return -1;
     }
 };

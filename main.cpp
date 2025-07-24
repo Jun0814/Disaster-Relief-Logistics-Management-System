@@ -87,6 +87,12 @@ int main()
                     cout << "Enter Supply Request ID to assign: ";
                     cin >> reqID;
                     sm.assignSupplyToRequest(reqID);
+                    int emergencyRequestID = sm.getEmergencyRequestIDFromSupplyRequestID(reqID);
+                    if (emergencyRequestID != -1) {
+                        sm.updateEmergencyRequestStatusIfReady(emergencyRequestID);
+                    } else {
+                        cout << "Could not find Emergency Request ID for this Supply Request.\n";
+                    }
                     break;
                 }
                 case 0:
@@ -148,6 +154,12 @@ int main()
                     cout << "Enter Quantity: ";
                     cin >> quantity;
                     vm.deployVolunteersToRequest(volunteerRequestID, skill, quantity);
+                    int emergencyRequestID = vm.getEmergencyRequestIDFromVolunteerRequestID(volunteerRequestID);
+                    if (emergencyRequestID != -1) {
+                        vm.updateEmergencyRequestStatusIfReady(emergencyRequestID);
+                    } else {
+                        cout << "Could not find Emergency Request ID for this Volunteer Request.\n";
+                    }
                     break;
                 }
                 case 3:
