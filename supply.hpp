@@ -343,6 +343,7 @@ public:
         // Check if there are any supply requests for this emergency
         bool hasSupplyRequest = false;
         bool supplyAssigned = false;
+        bool supplyStockSufficient = true;
         ifstream sreqFile(fileSupplyRequest);
         getline(sreqFile, line);
         while (getline(sreqFile, line)) {
@@ -357,6 +358,14 @@ public:
             if (stoi(reqID) == requestID) {
                 hasSupplyRequest = true;
                 if (status == "Assigned") {
+                    // Defensive: check if the supply stack has enough quantity for this supplyID
+                    SupplyStackNode* node = findSupplyByID(stoi(supplyID));
+                    int quantityNeeded = stoi(qty);
+                    int availableQuantity = node ? node->supply.quantity : 0;
+                    // Check if the requested quantity is more than available
+                    if (quantityNeeded > availableQuantity) {
+                        supplyStockSufficient = false;
+                    }
                     supplyAssigned = true;
                 }
             }
@@ -366,11 +375,11 @@ public:
         // Logic: If both exist, require both assigned. If only one exists, require only that one assigned.
         bool ready = false;
         if (hasVolunteerRequest && hasSupplyRequest) {
-            ready = volunteerAssigned && supplyAssigned;
+            ready = volunteerAssigned && supplyAssigned && supplyStockSufficient;
         } else if (hasVolunteerRequest) {
             ready = volunteerAssigned;
         } else if (hasSupplyRequest) {
-            ready = supplyAssigned;
+            ready = supplyAssigned && supplyStockSufficient;
         }
 
         if (ready) {
